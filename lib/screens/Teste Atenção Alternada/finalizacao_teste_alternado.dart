@@ -1,0 +1,57 @@
+import 'package:flutter/material.dart';
+
+class FinalizacaoTesteAlternado extends StatelessWidget {
+  const FinalizacaoTesteAlternado({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        backgroundColor: Colors.blue.shade100,
+      ),
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Parabéns! Você terminou o Teste de Atenção Alternada!',
+                style: TextStyle(fontSize: 38), textAlign: TextAlign.center),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(
+                    context, '/modelotesteconcentrado');
+              },
+              style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.blue, backgroundColor: Colors.white),
+              child: const Text('Vamos para o Próximo Teste!'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class NextTestButton extends StatelessWidget {
+  const NextTestButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.pushReplacementNamed(context, '/modelotesteconcentrado');
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Prepare-se para a Aplicação do Teste de Atenção Concentrado!'),
+        ));
+      },
+      style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.blue, backgroundColor: Colors.white),
+      child: const Text('Vamos para o Modelo do Teste!'),
+    );
+  }
+}
