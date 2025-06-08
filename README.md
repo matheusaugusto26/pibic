@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # aplicacao
 
 A new Flutter project.
@@ -14,3 +15,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# pibic
+>>>>>>> 7e3b802858423b0230a77e0285427cfb8abec322
