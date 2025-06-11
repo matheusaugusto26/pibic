@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CadastroSessaoTeste extends StatelessWidget {
-  GlobalKey<FormState> get _formKey => GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   const CadastroSessaoTeste({super.key});
 
   @override
@@ -16,8 +16,10 @@ class CadastroSessaoTeste extends StatelessWidget {
         body: SingleChildScrollView(
             child: Padding(
           padding: const EdgeInsets.fromLTRB(100, 50, 100, 50),
-          child: Column(
-            children: [
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
               // List.generate(50, (index) => Text('Item $index')),
               TextFormField(
                 validator: (value) {
@@ -139,15 +141,16 @@ class CadastroSessaoTeste extends StatelessWidget {
                   margin: const EdgeInsets.only(top: 10),
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(
-                          context, '/modelotestealternado');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Dados da Sessão Salvos com Sucesso!'),
-                          //! DO NOT FORGET TO ADD THE VALIDATION TO THE FORM BEFORE PROCEEDING TO THE NEXT SCREEN
-                          //! DO NOT FORGET TO ADD THE CONECTION TO THE DATABASE TO SAVE THE DATA SESSIONS
-                        ),
-                      );
+                      if (_formKey.currentState!.validate()) {
+                        Navigator.pushReplacementNamed(
+                            context, '/modelotestealternado');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text('Dados da Sessão Salvos com Sucesso!'),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.blue,
