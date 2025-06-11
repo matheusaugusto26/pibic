@@ -27,7 +27,7 @@ class ProximosPassos extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/');
+                Navigator.pushReplacementNamed(context, '/home');
               },
               style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.blue, backgroundColor: Colors.white),
