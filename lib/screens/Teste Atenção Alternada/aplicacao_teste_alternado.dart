@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AplicacaoTesteAlternado extends StatefulWidget {
   const AplicacaoTesteAlternado({super.key});
@@ -11,11 +11,17 @@ class AplicacaoTesteAlternado extends StatefulWidget {
 }
 
 class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
+  final FocusNode _focusNode = FocusNode();
+  final Stopwatch _stopwatch = Stopwatch();
+  List<Map<String, dynamic>> resultados = [];
+
   @override
   void initState() {
     super.initState();
+    _focusNode.requestFocus();
+    _stopwatch.start();
+
     Future.delayed(const Duration(seconds: 150), () {
-      // Check if the widget is still mounted before navigating
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/finalizacaotestealternado');
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -25,34 +31,65 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     });
   }
 
+  void _onKey(RawKeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.space) {
+      int tempoReacao = _stopwatch.elapsedMilliseconds;
+
+      setState(() {
+        resultados.add({
+          'tempo': tempoReacao,
+          'acerto': verificarAcerto(), // Aqui você pode implementar a lógica de acerto
+        });
+      });
+
+      print('Espaço pressionado. Tempo: $tempoReacao ms. Total de respostas: ${resultados.length}');
+    }
+  }
+
+  bool verificarAcerto() {
+    // Lógica de acerto temporária - Você deve adaptar de acordo com o teste
+    // Exemplo: Se a imagem atual for um número específico
+    return true; // ou false
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Aplicação do Teste Alternado'),
-        centerTitle: true,
-        backgroundColor: Colors.blue.shade100,
-      ),
-      body: const Center(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: <Widget>[
-                  SizedBox(height: 200),
-                  ImageSection(image: 'assets/images/square2.png'),
-                ],
+    return RawKeyboardListener(
+      focusNode: _focusNode,
+      onKey: _onKey,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text('Aplicação do Teste Alternado'),
+          centerTitle: true,
+          backgroundColor: Colors.blue.shade100,
+        ),
+        body: const Center(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(height: 200),
+                    ImageSection(image: 'assets/images/square2.png'),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              flex: 1,
-              child: RightBox(),
-            ),
-          ],
+              Expanded(
+                flex: 1,
+                child: RightBox(),
+              ),
+            ],
+          ),
         ),
       ),
     );

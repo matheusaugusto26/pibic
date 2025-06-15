@@ -12,14 +12,13 @@ import 'package:aplicacao/screens/Teste%20Aten%C3%A7%C3%A3o%20Alternada/aplicaca
 import 'package:aplicacao/screens/Teste%20Aten%C3%A7%C3%A3o%20Alternada/modelo_teste_alternado.dart';
 import 'package:aplicacao/screens/Teste%20Aten%C3%A7%C3%A3o%20Alternada/finalizacao_teste_alternado.dart';
 import 'package:aplicacao/screens/proximos_passos.dart';
-//import 'package:firebase_core/firebase_core.dart';
-//import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:printing/printing.dart';
 
 
 void main() async {
-//  WidgetsFlutterBinding.ensureInitialized();
-//  await Firebase.initializeApp(
-//!  options: DefaultFirebaseOptions.currentPlatform,
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AplicacaoTesteDividido extends StatefulWidget {
   const AplicacaoTesteDividido({super.key});
@@ -11,30 +11,62 @@ class AplicacaoTesteDividido extends StatefulWidget {
 }
 
 class AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
+  final FocusNode _focusNode = FocusNode();
+  final Stopwatch _stopwatch = Stopwatch();
+  final List<Map<String, dynamic>> resultados = [];
+
   @override
   void initState() {
     super.initState();
+    _focusNode.requestFocus();
+    _stopwatch.start();
+
     Future.delayed(const Duration(seconds: 240), () {
-      // Check if the widget is still mounted before navigating
-      try {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/finalizacaotestedividido');
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Terminado!'),
-          ));
-        }
-      } catch (e) {
-        print('Error: $e');
+      if (mounted) {
+        Navigator.pushReplacementNamed(
+            context, '/finalizacaotestedividido');
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Terminado!'),
+        ));
       }
     });
+  }
+
+  void _onKey(RawKeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.space) {
+      final int tempoReacao = _stopwatch.elapsedMilliseconds;
+      setState(() {
+        resultados.add({
+          'tempo': tempoReacao,
+          'acerto': verificarAcerto(), // implemente sua lógica aqui
+        });
+      });
+      // Para debug:
+      print(
+        'Espaço pressionado → Tempo: ${tempoReacao}ms • Total de respostas: ${resultados.length}'
+      );
+    }
+  }
+
+  bool verificarAcerto() {
+    // TODO: substituir por validação real, por exemplo:
+    // compare o valor atual de num (preciso expor esse valor aqui) com o valor esperado.
+    return true;
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     const String appTitle = 'Teste de Atenção Dividida';
-    return MaterialApp(
-      title: appTitle,
-      home: Scaffold(
+    return RawKeyboardListener(
+      focusNode: _focusNode,
+      onKey: _onKey,
+      child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -44,11 +76,10 @@ class AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
         ),
         body: const Center(
           child: Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // Align content at the start
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Expanded(
-                flex: 1, // Image column will take up 1/3 of the available space
+                flex: 1,
                 child: Column(
                   children: <Widget>[
                     SizedBox(height: 20),
@@ -61,7 +92,7 @@ class AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
                 ),
               ),
               Expanded(
-                flex: 1, // Box will take up 2/3 of the available space
+                flex: 1,
                 child: RightBox(),
               ),
             ],
@@ -72,7 +103,6 @@ class AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   }
 }
 
-// Widget for the right box
 class RightBox extends StatefulWidget {
   const RightBox({super.key});
   @override
@@ -86,13 +116,9 @@ class _RightBoxState extends State<RightBox> {
   @override
   void initState() {
     super.initState();
-    _startTimer();
-  }
-
-  void _startTimer() {
     _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       setState(() {
-        num = Random().nextInt(19) + 1; // Generates numbers from 1 to 19
+        num = Random().nextInt(19) + 1; // números de 1 a 19
       });
     });
   }
@@ -108,9 +134,7 @@ class _RightBoxState extends State<RightBox> {
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
       body: Center(
-        child: InkWell(
-          child: Image.asset('images/img$num.png'),
-        ),
+        child: Image.asset('images/img$num.png'),
       ),
     );
   }
@@ -118,7 +142,6 @@ class _RightBoxState extends State<RightBox> {
 
 class ImageSection extends StatelessWidget {
   const ImageSection({super.key, required this.image});
-
   final String image;
 
   @override
