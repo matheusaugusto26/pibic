@@ -1,120 +1,159 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:aplicacao/services/firebase_service.dart'; // <— adicione isto
+import 'package:flutter/services.dart';
 
-/// Calcula estatísticas básicas (total, soma de tempos, média, acertos, erros e taxa)
-Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
-  final total = resultados.length;
-  final somaTempos = resultados.fold<int>(
-    0,
-    (soma, resultado) => soma + (resultado['tempo'] as int),
-  );
-  final tempoMedio = total > 0 ? somaTempos / total : 0.0;
-  final acertos = resultados.where((r) => r['acerto'] == true).length;
-  final erros = total - acertos;
-  final taxaAcerto = total > 0 ? (acertos / total) * 100 : 0.0;
+class AplicacaoTesteConcentrado extends StatefulWidget {
+  const AplicacaoTesteConcentrado({super.key});
 
-  return {
-    'resultados': resultados,
-    'total': total,
-    'somaTempos': somaTempos,
-    'tempoMedio': tempoMedio,
-    'acertos': acertos,
-    'erros': erros,
-    'taxaAcerto': taxaAcerto,
-  };
+  @override
+  AplicacaoTesteConcentradoState createState() =>
+      AplicacaoTesteConcentradoState();
 }
 
-/// Tela de finalização do Teste de Atenção Dividida
-/// Salva sessão e resultados no Firebase antes de prosseguir.
-class FinalizacaoTesteDividido extends StatelessWidget {
-  const FinalizacaoTesteDividido({super.key});
+class AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
+  final FocusNode _focusNode = FocusNode();
+  final Stopwatch _stopwatch = Stopwatch();
+  final List<Map<String, dynamic>> resultados = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.requestFocus();
+    _stopwatch.start();
+
+    Future.delayed(const Duration(seconds: 120), () {
+      if (mounted) {
+        // Navega para a tela de finalização do teste concentrado,
+        // passando os resultados coletados até aqui:
+        Navigator.pushReplacementNamed(
+          context,
+          '/finalizacaotesteconcentrado',
+          arguments: resultados,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Terminado!')),
+        );
+      }
+    });
+  }
+
+  void _onSpacePressed() {
+    final int tempoReacao = _stopwatch.elapsedMilliseconds;
+    setState(() {
+      resultados.add({
+        'tempo': tempoReacao,
+        'acerto': verificarAcerto(),
+      });
+    });
+  }
+
+  bool verificarAcerto() {
+    // TODO: implementar sua lógica real de acerto aqui
+    return true;
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Captura o contexto local para uso após await
-    final localContext = context;
+    const String appTitle = 'Teste de Atenção Concentrada';
 
-    // Recebe dados das etapas anteriores e resultados brutos
-    final dadosPrevios =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ?? {};
-    final alternado = dadosPrevios['alternado'] as Map<String, dynamic>? ?? {};
-    final concentrado = dadosPrevios['concentrado'] as Map<String, dynamic>? ?? {};
-    final dividido = dadosPrevios['dividido'] as Map<String, dynamic>? ?? {};
-
-    final listaAlternado =
-        (alternado['resultados'] as List).cast<Map<String, dynamic>>();
-    final listaConcentrado =
-        (concentrado['resultados'] as List).cast<Map<String, dynamic>>();
-    final listaDividido =
-        (dividido['resultados'] as List).cast<Map<String, dynamic>>();
-
-    // Gera estatísticas
-    final statsAlternado = calcularStats(listaAlternado);
-    final statsConcentrado = calcularStats(listaConcentrado);
-    final statsDividido = calcularStats(listaDividido);
-
-    // Dados a serem passados ao PDF e próxima tela
-    final dadosParaPdf = {
-      'alternado': statsAlternado,
-      'concentrado': statsConcentrado,
-      'dividido': statsDividido,
-    };
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Finalização: Atenção Dividida'),
-        centerTitle: true,
-        backgroundColor: Colors.blue.shade100,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Parabéns! Você terminou Todos os Testes!',
-              style: TextStyle(fontSize: 28),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                final service = FirebaseService();
-                try {
-                  // 1) Salva a sessão e obtém o ID
-                  final sessionData = {
-                    'startedAt': DateTime.now().toIso8601String(),
-                  };
-                  final sessionId = await service.saveSession(sessionData);
-
-                  // 2) Salva cada bateria de resultados
-                  await service.saveResults(
-                      sessionId, statsAlternado['resultados']);
-                  await service.saveResults(
-                      sessionId, statsConcentrado['resultados']);
-                  await service.saveResults(
-                      sessionId, statsDividido['resultados']);
-
-                  // 3) Navega para Próximos Passos
-                  Navigator.pushReplacementNamed(
-                    localContext,
-                    '/proximospassos',
-                    arguments: dadosParaPdf,
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(localContext).showSnackBar(
-                    SnackBar(content: Text('Erro ao salvar: $e')),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.blue,
-                backgroundColor: Colors.white,
+    return KeyboardListener(
+      focusNode: _focusNode,
+      onKeyEvent: (KeyEvent event) {
+        if (event.logicalKey == LogicalKeyboardKey.space &&
+            event is KeyDownEvent) {
+          _onSpacePressed();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text(appTitle),
+          centerTitle: true,
+          backgroundColor: Colors.blue.shade100,
+        ),
+        body: const Center(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(height: 200),
+                    ImageSection(image: 'assets/images/square2.png'),
+                  ],
+                ),
               ),
-              child: const Text('Salvar no Firebase e Prosseguir'),
-            ),
-          ],
+              Expanded(
+                flex: 1,
+                child: RightBox(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class RightBox extends StatefulWidget {
+  const RightBox({super.key});
+  @override
+  State<RightBox> createState() => _RightBoxState();
+}
+
+class _RightBoxState extends State<RightBox> {
+  int num = 1;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      setState(() {
+        num = Random().nextInt(19) + 1;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.blue.shade50,
+      body: Center(
+        child: Image.asset('images/img$num.png'),
+      ),
+    );
+  }
+}
+
+class ImageSection extends StatelessWidget {
+  const ImageSection({super.key, required this.image});
+  final String image;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 110,
+      height: 110,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(image),
+          fit: BoxFit.cover,
         ),
       ),
     );
