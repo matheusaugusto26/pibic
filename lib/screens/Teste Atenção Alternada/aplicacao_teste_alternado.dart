@@ -13,7 +13,7 @@ class AplicacaoTesteAlternado extends StatefulWidget {
 class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopwatch = Stopwatch();
-  List<Map<String, dynamic>> resultados = [];
+  final List<Map<String, dynamic>> resultados = [];
 
   @override
   void initState() {
@@ -23,33 +23,28 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
 
     Future.delayed(const Duration(seconds: 150), () {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/finalizacaotestealternado');
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Terminado!'),
-        ));
+        Navigator.pushReplacementNamed(context, '/finalizacaotestealternado',
+            arguments: resultados);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Terminado!')),
+        );
       }
     });
   }
 
-  void _onKey(RawKeyEvent event) {
-    if (event.logicalKey == LogicalKeyboardKey.space) {
-      int tempoReacao = _stopwatch.elapsedMilliseconds;
-
-      setState(() {
-        resultados.add({
-          'tempo': tempoReacao,
-          'acerto': verificarAcerto(), // Aqui você pode implementar a lógica de acerto
-        });
+  void _onSpacePressed() {
+    final int tempoReacao = _stopwatch.elapsedMilliseconds;
+    setState(() {
+      resultados.add({
+        'tempo': tempoReacao,
+        'acerto': verificarAcerto(),
       });
-
-      print('Espaço pressionado. Tempo: $tempoReacao ms. Total de respostas: ${resultados.length}');
-    }
+    });
   }
 
   bool verificarAcerto() {
-    // Lógica de acerto temporária - Você deve adaptar de acordo com o teste
-    // Exemplo: Se a imagem atual for um número específico
-    return true; // ou false
+    // TODO: adaptar lógica de acerto
+    return true;
   }
 
   @override
@@ -60,9 +55,14 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
 
   @override
   Widget build(BuildContext context) {
-    return RawKeyboardListener(
+    return KeyboardListener(
       focusNode: _focusNode,
-      onKey: _onKey,
+      onKeyEvent: (KeyEvent event) {
+        if (event.logicalKey == LogicalKeyboardKey.space &&
+            event is KeyDownEvent) {
+          _onSpacePressed();
+        }
+      },
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -109,10 +109,6 @@ class _RightBoxState extends State<RightBox> {
   @override
   void initState() {
     super.initState();
-    _startTimer();
-  }
-
-  void _startTimer() {
     _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       setState(() {
         num = Random().nextInt(19) + 1;

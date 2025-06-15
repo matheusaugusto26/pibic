@@ -24,33 +24,29 @@ class AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     Future.delayed(const Duration(seconds: 240), () {
       if (mounted) {
         Navigator.pushReplacementNamed(
-            context, '/finalizacaotestedividido');
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Terminado!'),
-        ));
+          context,
+          '/finalizacaotestedividido',
+          arguments: resultados,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Terminado!')),
+        );
       }
     });
   }
 
-  void _onKey(RawKeyEvent event) {
-    if (event.logicalKey == LogicalKeyboardKey.space) {
-      final int tempoReacao = _stopwatch.elapsedMilliseconds;
-      setState(() {
-        resultados.add({
-          'tempo': tempoReacao,
-          'acerto': verificarAcerto(), // implemente sua lógica aqui
-        });
+  void _onSpacePressed() {
+    final int tempoReacao = _stopwatch.elapsedMilliseconds;
+    setState(() {
+      resultados.add({
+        'tempo': tempoReacao,
+        'acerto': verificarAcerto(),
       });
-      // Para debug:
-      print(
-        'Espaço pressionado → Tempo: ${tempoReacao}ms • Total de respostas: ${resultados.length}'
-      );
-    }
+    });
   }
 
   bool verificarAcerto() {
-    // TODO: substituir por validação real, por exemplo:
-    // compare o valor atual de num (preciso expor esse valor aqui) com o valor esperado.
+    // TODO: implementar lógica real de validação
     return true;
   }
 
@@ -63,9 +59,15 @@ class AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   @override
   Widget build(BuildContext context) {
     const String appTitle = 'Teste de Atenção Dividida';
-    return RawKeyboardListener(
+
+    return KeyboardListener(
       focusNode: _focusNode,
-      onKey: _onKey,
+      onKeyEvent: (KeyEvent event) {
+        if (event.logicalKey == LogicalKeyboardKey.space &&
+            event is KeyDownEvent) {
+          _onSpacePressed();
+        }
+      },
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -118,7 +120,7 @@ class _RightBoxState extends State<RightBox> {
     super.initState();
     _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       setState(() {
-        num = Random().nextInt(19) + 1; // números de 1 a 19
+        num = Random().nextInt(19) + 1;
       });
     });
   }
