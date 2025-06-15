@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-  -->
+  <!-- Se você servir seu app em um sub‐diretório, ajuste este base href -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <meta name="description" content="A new Flutter project.">
 
-  <!-- Progressive Web App meta tags -->
+  <!-- Meta para PWA -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -25,17 +22,16 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <!--
-    Workaround para conflito com RequireJS/AMD: desativa define() antes
-    do CanvasKit ser carregado pelo Flutter.
-  -->
+  <!-- Script principal do Flutter Web em modo HTML renderer -->
+  <script src="flutter_bootstrap.js" defer></script>
   <script>
-    if (window.define && define.amd) {
-      define = undefined;
-    }
+    window.addEventListener('DOMContentLoaded', function () {
+      window.flutterBootstrapper.bootstrap({
+        onEntrypointLoaded: function () {
+          window.flutterRunMain();
+        },
+      });
+    });
   </script>
-
-  <!-- Bootstrap e carregamento do seu app Flutter Web -->
-  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
