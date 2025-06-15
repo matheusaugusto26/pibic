@@ -15,13 +15,30 @@ import 'package:aplicacao/screens/proximos_passos.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e, st) {
+    debugPrint('Erro ao iniciar Firebase:\n$e\n$st');
+    runApp(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text(
+            'Erro ao iniciar Firebase:\n$e',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    ));
+    return;
+  }
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
