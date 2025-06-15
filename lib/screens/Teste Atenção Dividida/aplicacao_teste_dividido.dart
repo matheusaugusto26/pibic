@@ -7,46 +7,70 @@ class AplicacaoTesteDividido extends StatefulWidget {
   const AplicacaoTesteDividido({super.key});
 
   @override
-  AplicacaoTesteDivididoState createState() => AplicacaoTesteDivididoState();
+  State<AplicacaoTesteDividido> createState() =>
+      _AplicacaoTesteDivididoState();
 }
 
-class AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
+class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopwatch = Stopwatch();
-  final List<Map<String, dynamic>> resultados = [];
+
+  bool _isInit = false;
+  late Map<String, dynamic> _dadosAlternado;
+  late Map<String, dynamic> _dadosConcentrado;
+  final List<Map<String, dynamic>> _resultadosDividido = [];
 
   @override
-  void initState() {
-    super.initState();
-    _focusNode.requestFocus();
-    _stopwatch.start();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInit) {
+      // 1) Recebe o Map com 'alternado' e 'concentrado' vindos da rota
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
+              {};
 
-    Future.delayed(const Duration(seconds: 240), () {
-      if (mounted) {
+      _dadosAlternado = args['alternado'] as Map<String, dynamic>? ?? {};
+      _dadosConcentrado = args['concentrado'] as Map<String, dynamic>? ?? {};
+
+      // 2) Prepara foco e cronômetro
+      _focusNode.requestFocus();
+      _stopwatch.start();
+
+      // 3) Agenda o término do teste (240s) e navega para Finalização
+      Timer(const Duration(seconds: 240), () {
+        if (!mounted) return;
         Navigator.pushReplacementNamed(
           context,
           '/finalizacaotestedividido',
-          arguments: resultados,
+          arguments: {
+            'alternado': _dadosAlternado,
+            'concentrado': _dadosConcentrado,
+            'dividido': {
+              'resultados': _resultadosDividido,
+            },
+          },
         );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Terminado!')),
         );
-      }
-    });
+      });
+
+      _isInit = true;
+    }
   }
 
   void _onSpacePressed() {
     final int tempoReacao = _stopwatch.elapsedMilliseconds;
     setState(() {
-      resultados.add({
+      _resultadosDividido.add({
         'tempo': tempoReacao,
-        'acerto': verificarAcerto(),
+        'acerto': _verificarAcerto(),
       });
     });
   }
 
-  bool verificarAcerto() {
-    // TODO: implementar lógica real de validação
+  bool _verificarAcerto() {
+    // TODO: implemente aqui a lógica real de validação do teste dividido
     return true;
   }
 
@@ -112,15 +136,15 @@ class RightBox extends StatefulWidget {
 }
 
 class _RightBoxState extends State<RightBox> {
-  int num = 1;
+  int _num = 1;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
       setState(() {
-        num = Random().nextInt(19) + 1;
+        _num = Random().nextInt(19) + 1;
       });
     });
   }
@@ -136,7 +160,7 @@ class _RightBoxState extends State<RightBox> {
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
       body: Center(
-        child: Image.asset('images/img$num.png'),
+        child: Image.asset('assets/images/img$_num.png'),
       ),
     );
   }

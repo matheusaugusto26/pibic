@@ -6,7 +6,7 @@ Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
   final total = resultados.length;
   final somaTempos = resultados.fold<int>(
     0,
-    (soma, resultado) => soma + (resultado['tempo'] as int),
+    (soma, r) => soma + (r['tempo'] as int),
   );
   final tempoMedio = total > 0 ? somaTempos / total : 0.0;
   final acertos = resultados.where((r) => r['acerto'] == true).length;
@@ -25,7 +25,7 @@ Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
 }
 
 /// Tela de finalização do Teste de Atenção Dividida
-/// Agora como StatefulWidget para controlar init e mounted.
+/// Recebe os dados de alternado, concentrado e dividido, salva no Firebase e passa adiante.
 class FinalizacaoTesteDividido extends StatefulWidget {
   const FinalizacaoTesteDividido({super.key});
 
@@ -34,7 +34,8 @@ class FinalizacaoTesteDividido extends StatefulWidget {
       _FinalizacaoTesteDivididoState();
 }
 
-class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
+class _FinalizacaoTesteDivididoState
+    extends State<FinalizacaoTesteDividido> {
   bool _isInit = false;
   late final Map<String, dynamic> statsAlternado;
   late final Map<String, dynamic> statsConcentrado;
@@ -45,25 +46,35 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInit) {
-      // Pega os argumentos da rota
       final args =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
               {};
 
-      // Extrai as listas de resultados
-      final listaAlternado =
-          (args['alternado']['resultados'] as List).cast<Map<String, dynamic>>();
-      final listaConcentrado =
-          (args['concentrado']['resultados'] as List).cast<Map<String, dynamic>>();
-      final listaDividido =
-          (args['dividido']['resultados'] as List).cast<Map<String, dynamic>>();
+      // Extrai o mapa de estatísticas de alternado (já contém 'resultados', 'total', etc.)
+      final alternadoMap = args['alternado'] as Map<String, dynamic>? ?? {};
+      // Extrai o mapa de estatísticas de concentrado
+      final concentradoMap =
+          args['concentrado'] as Map<String, dynamic>? ?? {};
+      // Extrai a lista bruta de resultados divididos
+      final divididoMap = args['dividido'] as Map<String, dynamic>? ?? {};
 
-      // Calcula as estatísticas
+      // Converte as listas dinamicamente tipadas
+      final listaAlternado = List<Map<String, dynamic>>.from(
+        alternadoMap['resultados'] as List<dynamic>? ?? [],
+      );
+      final listaConcentrado = List<Map<String, dynamic>>.from(
+        concentradoMap['resultados'] as List<dynamic>? ?? [],
+      );
+      final listaDividido = List<Map<String, dynamic>>.from(
+        divididoMap['resultados'] as List<dynamic>? ?? [],
+      );
+
+      // Calcula estatísticas finais de cada bateria
       statsAlternado = calcularStats(listaAlternado);
       statsConcentrado = calcularStats(listaConcentrado);
       statsDividido = calcularStats(listaDividido);
 
-      // Empacota os dados para o PDF e próxima tela
+      // Prepara o pacote completo para PDF e próxima tela
       dadosParaPdf = {
         'alternado': statsAlternado,
         'concentrado': statsConcentrado,
@@ -77,20 +88,18 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
   Future<void> _salvarEProsseguir() async {
     final service = FirebaseService();
     try {
-      // 1) Salva a sessão
+      // 1) Salva a sessão e obtém um ID
       final sessionId = await service.saveSession({
         'startedAt': DateTime.now().toIso8601String(),
       });
 
-      // 2) Salva cada bateria de resultados
+      // 2) Salva resultados de cada bateria
       await service.saveResults(sessionId, statsAlternado['resultados']);
       await service.saveResults(sessionId, statsConcentrado['resultados']);
       await service.saveResults(sessionId, statsDividido['resultados']);
 
-      // Verifica se o widget ainda está montado antes de navegar
       if (!mounted) return;
-
-      // 3) Navega para Próximos Passos
+      // 3) Navega para Próximos Passos com o pacote completo
       Navigator.pushReplacementNamed(
         context,
         '/proximospassos',

@@ -1,31 +1,34 @@
 import 'package:flutter/material.dart';
 
 /// Tela de finalização do Teste de Atenção Alternada
-/// Não exibe estatísticas, apenas armazena para uso posterior no PDF.
+/// Não exibe estatísticas, apenas prepara os dados para o próximo teste.
 class FinalizacaoTesteAlternado extends StatelessWidget {
   const FinalizacaoTesteAlternado({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Recupera os resultados passados como argumento de rota
-    final List<Map<String, dynamic>> resultados =
-        ModalRoute.of(context)!.settings.arguments as List<Map<String, dynamic>>? ?? [];
+    // 1) Recupera a lista de resultados vindos de AplicacaoTesteAlternado
+    final resultadosLista = (ModalRoute.of(context)!.settings.arguments
+            as List<dynamic>? ??
+        [])
+        .cast<Map<String, dynamic>>();
 
-    // Cálculo das estatísticas (armazenadas em memória, não exibidas)
-    final int total = resultados.length;
-    final int somaTempos = resultados.fold<int>(
+    // 2) Calcula estatísticas
+    final int total = resultadosLista.length;
+    final int somaTempos = resultadosLista.fold<int>(
       0,
       (soma, item) => soma + (item['tempo'] as int),
     );
     final double tempoMedio = total > 0 ? somaTempos / total : 0.0;
-    final int acertos = resultados.where((item) => item['acerto'] == true).length;
+    final int acertos =
+        resultadosLista.where((item) => item['acerto'] == true).length;
     final int erros = total - acertos;
     final double taxaAcerto = total > 0 ? (acertos / total) * 100 : 0.0;
 
-    // Dados a serem enviados sequencialmente para a próxima etapa
-    final Map<String, dynamic> dadosParaProximoTeste = {
+    // 3) Empacota tudo num Map para enviar ao próximo teste
+    final Map<String, dynamic> dadosAlternado = {
       'alternado': {
-        'resultados': resultados,
+        'resultados': resultadosLista,
         'total': total,
         'somaTempos': somaTempos,
         'tempoMedio': tempoMedio,
@@ -35,13 +38,14 @@ class FinalizacaoTesteAlternado extends StatelessWidget {
       },
     };
 
+    // 4) Exibe a tela de finalização e botão para ir ao modelo do próximo teste
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        title: const Text('Finalização: Atenção Alternada'),
         centerTitle: true,
         backgroundColor: Colors.blue.shade100,
-        title: const Text('Finalização: Atenção Alternada'),
       ),
       body: Center(
         child: Column(
@@ -55,11 +59,12 @@ class FinalizacaoTesteAlternado extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                // Navega para o modelo do Teste de Atenção Concentrada, mantendo a ordem dos testes
+                // Navega para o modelo do Teste Concentrado,
+                // passando os dados do alternado
                 Navigator.pushReplacementNamed(
                   context,
                   '/modelotesteconcentrado',
-                  arguments: dadosParaProximoTeste,
+                  arguments: dadosAlternado,
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -74,3 +79,4 @@ class FinalizacaoTesteAlternado extends StatelessWidget {
     );
   }
 }
+

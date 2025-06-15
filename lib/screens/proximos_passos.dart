@@ -10,9 +10,10 @@ class ProximosPassos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Recupera todos os dados para gerar o PDF
+    // 1) Captura os argumentos de rota, garantindo que sejam um Map
+    final args = ModalRoute.of(context)!.settings.arguments;
     final Map<String, dynamic> dados =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ?? {};
+        args is Map<String, dynamic> ? args : {};
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -38,7 +39,7 @@ class ProximosPassos extends StatelessWidget {
             const SizedBox(height: 20),
             const ScrollableTextBox(),
             const SizedBox(height: 20),
-            // Botão existente para nova sessão
+            // Botão para iniciar nova sessão
             ElevatedButton(
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/home');
@@ -70,53 +71,72 @@ class ProximosPassos extends StatelessWidget {
   Future<void> _exportarPdf(Map<String, dynamic> dados) async {
     final pdf = pw.Document();
 
-    // Extrai estatísticas de cada teste
+    // 2) Extrai estatísticas de cada teste com fallback
     final alt = dados['alternado'] as Map<String, dynamic>? ?? {};
     final conc = dados['concentrado'] as Map<String, dynamic>? ?? {};
     final divi = dados['dividido'] as Map<String, dynamic>? ?? {};
 
-    // Cálculo da porcentagem final acumulada
-    final totalGeral =
-        (alt['total'] as int? ?? 0) + (conc['total'] as int? ?? 0) + (divi['total'] as int? ?? 0);
-    final acertosGeral =
-        (alt['acertos'] as int? ?? 0) + (conc['acertos'] as int? ?? 0) + (divi['acertos'] as int? ?? 0);
-    final percFinal = totalGeral > 0 ? (acertosGeral / totalGeral) * 100 : 0.0;
+    final totalAlt = alt['total'] as int? ?? 0;
+    final acertosAlt = alt['acertos'] as int? ?? 0;
+    final errosAlt = alt['erros'] as int? ?? 0;
+    final taxaAlt = (alt['taxaAcerto'] as num? ?? 0).toDouble();
+    final tempoAlt = (alt['tempoMedio'] as num? ?? 0).toDouble();
 
-    // Adiciona páginas com estatísticas de cada teste
+    final totalConc = conc['total'] as int? ?? 0;
+    final acertosConc = conc['acertos'] as int? ?? 0;
+    final errosConc = conc['erros'] as int? ?? 0;
+    final taxaConc = (conc['taxaAcerto'] as num? ?? 0).toDouble();
+    final tempoConc = (conc['tempoMedio'] as num? ?? 0).toDouble();
+
+    final totalDiv = divi['total'] as int? ?? 0;
+    final acertosDiv = divi['acertos'] as int? ?? 0;
+    final errosDiv = divi['erros'] as int? ?? 0;
+    final taxaDiv = (divi['taxaAcerto'] as num? ?? 0).toDouble();
+    final tempoDiv = (divi['tempoMedio'] as num? ?? 0).toDouble();
+
+    // 3) Cálculo da porcentagem final acumulada
+    final totalGeral = totalAlt + totalConc + totalDiv;
+    final acertosGeral = acertosAlt + acertosConc + acertosDiv;
+    final percFinal =
+        totalGeral > 0 ? (acertosGeral / totalGeral) * 100 : 0.0;
+
+    // 4) Monta o PDF
     pdf.addPage(
       pw.MultiPage(
         build: (context) => [
           pw.Header(level: 0, text: 'Relatório de Avaliação Neuropsicológica'),
           pw.Header(level: 1, text: '1. Teste de Atenção Alternada'),
-          pw.Text('Total de respostas: ${alt['total'] ?? 0}'),
-          pw.Text('Acertos: ${alt['acertos'] ?? 0}'),
-          pw.Text('Erros: ${alt['erros'] ?? 0}'),
-          pw.Text('Taxa de acerto: ${ (alt['taxaAcerto'] as double? ?? 0.0).toStringAsFixed(1) }%'),
-          pw.Text('Tempo médio de reação: ${ (alt['tempoMedio'] as double? ?? 0.0).toStringAsFixed(0) } ms'),
+          pw.Text('Total de respostas: $totalAlt'),
+          pw.Text('Acertos: $acertosAlt'),
+          pw.Text('Erros: $errosAlt'),
+          pw.Text('Taxa de acerto: ${taxaAlt.toStringAsFixed(1)}%'),
+          pw.Text('Tempo médio de reação: ${tempoAlt.toStringAsFixed(0)} ms'),
           pw.SizedBox(height: 12),
           pw.Header(level: 1, text: '2. Teste de Atenção Concentrada'),
-          pw.Text('Total de respostas: ${conc['total'] ?? 0}'),
-          pw.Text('Acertos: ${conc['acertos'] ?? 0}'),
-          pw.Text('Erros: ${conc['erros'] ?? 0}'),
-          pw.Text('Taxa de acerto: ${ (conc['taxaAcerto'] as double? ?? 0.0).toStringAsFixed(1) }%'),
-          pw.Text('Tempo médio de reação: ${ (conc['tempoMedio'] as double? ?? 0.0).toStringAsFixed(0) } ms'),
+          pw.Text('Total de respostas: $totalConc'),
+          pw.Text('Acertos: $acertosConc'),
+          pw.Text('Erros: $errosConc'),
+          pw.Text('Taxa de acerto: ${taxaConc.toStringAsFixed(1)}%'),
+          pw.Text('Tempo médio de reação: ${tempoConc.toStringAsFixed(0)} ms'),
           pw.SizedBox(height: 12),
           pw.Header(level: 1, text: '3. Teste de Atenção Dividida'),
-          pw.Text('Total de respostas: ${divi['total'] ?? 0}'),
-          pw.Text('Acertos: ${divi['acertos'] ?? 0}'),
-          pw.Text('Erros: ${divi['erros'] ?? 0}'),
-          pw.Text('Taxa de acerto: ${ (divi['taxaAcerto'] as double? ?? 0.0).toStringAsFixed(1) }%'),
-          pw.Text('Tempo médio de reação: ${ (divi['tempoMedio'] as double? ?? 0.0).toStringAsFixed(0) } ms'),
+          pw.Text('Total de respostas: $totalDiv'),
+          pw.Text('Acertos: $acertosDiv'),
+          pw.Text('Erros: $errosDiv'),
+          pw.Text('Taxa de acerto: ${taxaDiv.toStringAsFixed(1)}%'),
+          pw.Text('Tempo médio de reação: ${tempoDiv.toStringAsFixed(0)} ms'),
           pw.Divider(),
           pw.Header(level: 1, text: 'Resultado Final'),
           pw.Text('Total Geral: $totalGeral respostas'),
           pw.Text('Acertos Gerais: $acertosGeral'),
-          pw.Text('Porcentagem Final de Acerto: ${percFinal.toStringAsFixed(1)}%'),
+          pw.Text(
+            'Porcentagem Final de Acerto: ${percFinal.toStringAsFixed(1)}%',
+          ),
         ],
       ),
     );
 
-    // Layout/Salvamento do PDF
+    // 5) Exibe/Salva o PDF
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
     );
@@ -140,7 +160,6 @@ class ScrollableTextBox extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
-              // Seu texto explicativo aqui
               'Lorem ipsum dolor sit amet...',
               style: TextStyle(fontSize: 16),
             ),

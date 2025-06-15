@@ -7,41 +7,61 @@ class AplicacaoTesteConcentrado extends StatefulWidget {
   const AplicacaoTesteConcentrado({super.key});
 
   @override
-  AplicacaoTesteConcentradoState createState() =>
-      AplicacaoTesteConcentradoState();
+  State<AplicacaoTesteConcentrado> createState() =>
+      _AplicacaoTesteConcentradoState();
 }
 
-class AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
+class _AplicacaoTesteConcentradoState
+    extends State<AplicacaoTesteConcentrado> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopwatch = Stopwatch();
-  final List<Map<String, dynamic>> resultados = [];
+
+  bool _isInit = false;
+  late List<Map<String, dynamic>> _resultadosAlternado;
+  final List<Map<String, dynamic>> _resultadosConcentrado = [];
 
   @override
-  void initState() {
-    super.initState();
-    _focusNode.requestFocus();
-    _stopwatch.start();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInit) {
+      // 1) Recebe o Map que veio de FinalizacaoTesteAlternado
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
+              {};
 
-    Future.delayed(const Duration(seconds: 120), () {
-      if (mounted) {
-        // Navega para a tela de finalização do teste concentrado,
-        // passando os resultados coletados até aqui:
+      // 2) Extrai a lista bruta de resultados do alternado
+      final alternadoMap = args['alternado'] as Map<String, dynamic>? ?? {};
+      _resultadosAlternado = (alternadoMap['resultados'] as List)
+          .cast<Map<String, dynamic>>();
+
+      // 3) Prepara o listener de teclado e o cronômetro
+      _focusNode.requestFocus();
+      _stopwatch.start();
+
+      // 4) Dispara o timer para terminar o teste
+      Timer(const Duration(seconds: 120), () {
+        if (!mounted) return;
         Navigator.pushReplacementNamed(
           context,
           '/finalizacaotesteconcentrado',
-          arguments: resultados,
+          arguments: {
+            'alternado': _resultadosAlternado,
+            'concentrado': _resultadosConcentrado,
+          },
         );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Terminado!')),
         );
-      }
-    });
+      });
+
+      _isInit = true;
+    }
   }
 
   void _onSpacePressed() {
     final int tempoReacao = _stopwatch.elapsedMilliseconds;
     setState(() {
-      resultados.add({
+      _resultadosConcentrado.add({
         'tempo': tempoReacao,
         'acerto': verificarAcerto(),
       });
@@ -49,7 +69,7 @@ class AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   }
 
   bool verificarAcerto() {
-    // TODO: implementar sua lógica real de acerto aqui
+    // TODO: implementar a lógica real de acerto aqui
     return true;
   }
 
@@ -135,7 +155,7 @@ class _RightBoxState extends State<RightBox> {
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
       body: Center(
-        child: Image.asset('images/img$num.png'),
+        child: Image.asset('assets/images/img$num.png'),
       ),
     );
   }
