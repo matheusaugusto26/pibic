@@ -11,8 +11,7 @@ class AplicacaoTesteConcentrado extends StatefulWidget {
       _AplicacaoTesteConcentradoState();
 }
 
-class _AplicacaoTesteConcentradoState
-    extends State<AplicacaoTesteConcentrado> {
+class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopwatch = Stopwatch();
 
@@ -24,21 +23,25 @@ class _AplicacaoTesteConcentradoState
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInit) {
-      // 1) Recebe o Map que veio de FinalizacaoTesteAlternado
-      final args =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
-              {};
+      // 1) Leia raw sem cast forçado
+      final rawArgs = ModalRoute.of(context)!.settings.arguments;
 
-      // 2) Extrai a lista bruta de resultados do alternado
-      final alternadoMap = args['alternado'] as Map<String, dynamic>? ?? {};
-      _resultadosAlternado = (alternadoMap['resultados'] as List)
-          .cast<Map<String, dynamic>>();
+      // 2) Verifique se é Map<String,dynamic>
+      final args = (rawArgs is Map<String, dynamic>) ? rawArgs : {};
 
-      // 3) Prepara o listener de teclado e o cronômetro
+      // 3) Agora extraia a lista alternado com fallback seguro
+      final alt = args['alternado'];
+      final List<Map<String, dynamic>> resultadosAlternado = (alt is List)
+          ? List<Map<String, dynamic>>.from(alt)
+          : <Map<String, dynamic>>[];
+
+      _resultadosAlternado = resultadosAlternado;
+
+      // 4) Prepara o listener de teclado e o cronômetro
       _focusNode.requestFocus();
       _stopwatch.start();
 
-      // 4) Dispara o timer para terminar o teste
+      // 5) Dispara o timer para terminar o teste
       Timer(const Duration(seconds: 120), () {
         if (!mounted) return;
         Navigator.pushReplacementNamed(
