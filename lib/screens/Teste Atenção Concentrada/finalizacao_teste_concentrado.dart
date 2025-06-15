@@ -1,59 +1,44 @@
 import 'package:flutter/material.dart';
 
-/// Calcula estatísticas básicas (total, soma de tempos, média, acertos, erros e taxa)
-Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
-  final total = resultados.length;
-  final somaTempos = resultados.fold<int>(
-    0,
-    (soma, r) => soma + (r['tempo'] as int),
-  );
-  final tempoMedio = total > 0 ? somaTempos / total : 0.0;
-  final acertos = resultados.where((r) => r['acerto'] == true).length;
-  final erros = total - acertos;
-  final taxaAcerto = total > 0 ? (acertos / total) * 100 : 0.0;
-
-  return {
-    'resultados': resultados,
-    'total': total,
-    'somaTempos': somaTempos,
-    'tempoMedio': tempoMedio,
-    'acertos': acertos,
-    'erros': erros,
-    'taxaAcerto': taxaAcerto,
-  };
-}
-
-/// Tela de finalização do Teste de Atenção Concentrada
-/// Recebe dados de alternado e concentrado e inicia o fluxo do teste dividido.
 class FinalizacaoTesteConcentrado extends StatelessWidget {
   const FinalizacaoTesteConcentrado({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 1) Recupera o Map com 'alternado' e 'concentrado'
-    final args = ModalRoute.of(context)!.settings.arguments
-        as Map<String, dynamic>? ?? {};
+    // Garante que argumentos são do tipo Map<String, dynamic>
+    final rawArgs = ModalRoute.of(context)!.settings.arguments;
+    final Map<String, dynamic> args =
+        rawArgs is Map ? Map<String, dynamic>.from(rawArgs) : {};
 
-    // 2) Extrai o Map do alternado
-    final alternadoMap = args['alternado'] as Map<String, dynamic>? ?? {};
-    // 3) Ajusta aqui o listaAlternado para ser List<Map<…>>
-    final List<Map<String, dynamic>> listaAlternado =
-        List<Map<String, dynamic>>.from(
-            alternadoMap['resultados'] as List<dynamic>? ?? []);
+    // Extrai listas de resultados
+    final List<Map<String, dynamic>> listaAlternado = (args['alternado'] is List)
+        ? List<Map<String, dynamic>>.from(args['alternado'])
+        : [];
+    final List<Map<String, dynamic>> listaConcentrado = (args['concentrado'] is List)
+        ? List<Map<String, dynamic>>.from(args['concentrado'])
+        : [];
 
-    // 4) Extrai a lista bruta de resultados do concentrado
-    final List<Map<String, dynamic>> listaConcentrado =
-        List<Map<String, dynamic>>.from(
-            args['concentrado'] as List<dynamic>? ?? []);
+    // Estatísticas para a próxima etapa
+    final int totalC = listaConcentrado.length;
+    final int somaTemposC = listaConcentrado.fold<int>(
+        0, (soma, item) => soma + (item['tempo'] as int));
+    final double tempoMedioC = totalC > 0 ? somaTemposC / totalC : 0.0;
+    final int acertosC =
+        listaConcentrado.where((item) => item['acerto'] == true).length;
+    final int errosC = totalC - acertosC;
+    final double taxaAcertoC = totalC > 0 ? (acertosC / totalC) * 100 : 0.0;
 
-    // 5) Calcula estatísticas de cada bateria
-    final statsAlternado = calcularStats(listaAlternado);
-    final statsConcentrado = calcularStats(listaConcentrado);
-
-    // 6) Prepara o pacote para o próximo teste
-    final dadosParaDividido = {
-      'alternado': statsAlternado,
-      'concentrado': statsConcentrado,
+    final Map<String, dynamic> resultadosCompletos = {
+      'alternado': {'resultados': listaAlternado},
+      'concentrado': {
+        'resultados': listaConcentrado,
+        'total': totalC,
+        'somaTempos': somaTemposC,
+        'tempoMedio': tempoMedioC,
+        'acertos': acertosC,
+        'erros': errosC,
+        'taxaAcerto': taxaAcertoC,
+      },
     };
 
     return Scaffold(
@@ -76,10 +61,11 @@ class FinalizacaoTesteConcentrado extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
+                // Vai para o modelo do Teste Dividido levando resultados acumulados
                 Navigator.pushReplacementNamed(
                   context,
                   '/modelotestedividido',
-                  arguments: dadosParaDividido,
+                  arguments: resultadosCompletos,
                 );
               },
               style: ElevatedButton.styleFrom(
