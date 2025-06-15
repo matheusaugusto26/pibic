@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:aplicacao/services/firebase_service.dart'; // <— adicione isto
+import 'package:aplicacao/services/firebase_service.dart'; // Certifique-se de que o caminho esteja correto
 
 /// Calcula estatísticas básicas (total, soma de tempos, média, acertos, erros e taxa)
 Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
@@ -31,16 +31,16 @@ class FinalizacaoTesteDividido extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dadosPrevios = ModalRoute.of(context)!.settings.arguments
-            as Map<String, dynamic>? ??
-        {};
-
+    // Recebe os dados das etapas anteriores
+    final dadosPrevios =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
+            {};
     final alternado = dadosPrevios['alternado'] as Map<String, dynamic>? ?? {};
     final concentrado =
         dadosPrevios['concentrado'] as Map<String, dynamic>? ?? {};
     final dividido = dadosPrevios['dividido'] as Map<String, dynamic>? ?? {};
 
-    // Extrai lista de resultados brutos
+    // Extrai listas de resultados
     final listaAlternado =
         (alternado['resultados'] as List).cast<Map<String, dynamic>>();
     final listaConcentrado =
@@ -48,7 +48,7 @@ class FinalizacaoTesteDividido extends StatelessWidget {
     final listaDividido =
         (dividido['resultados'] as List).cast<Map<String, dynamic>>();
 
-    // Já calcula as estatísticas gerais (não exibidas aqui)
+    // Calcula estatísticas
     final statsAlternado = calcularStats(listaAlternado);
     final statsConcentrado = calcularStats(listaConcentrado);
     final statsDividido = calcularStats(listaDividido);
@@ -80,17 +80,18 @@ class FinalizacaoTesteDividido extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () async {
+                // Captura o contexto antes de qualquer await
+                final localContext = context;
+
                 final service = FirebaseService();
                 try {
-                  // 1) salva os dados da sessão
+                  // 1) Salva a sessão e obtém o ID
                   final sessionData = {
                     'startedAt': DateTime.now().toIso8601String(),
-                    // adicione aqui outros campos de sessão se quiser
                   };
-                  final sessionId =
-                      await service.saveSession(sessionData);
+                  final sessionId = await service.saveSession(sessionData);
 
-                  // 2) salva resultados de cada teste
+                  // 2) Salva resultados de cada bateria
                   await service.saveResults(
                       sessionId, statsAlternado['resultados']);
                   await service.saveResults(
@@ -98,15 +99,15 @@ class FinalizacaoTesteDividido extends StatelessWidget {
                   await service.saveResults(
                       sessionId, statsDividido['resultados']);
 
-                  // 3) navega para Próximos Passos
+                  // 3) Navega para Próximos Passos
                   Navigator.pushReplacementNamed(
-                    context,
+                    localContext,
                     '/proximospassos',
                     arguments: dadosParaPdf,
                   );
                 } catch (e) {
-                  // em caso de erro, exibe mensagem e não navega
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  // Exibe o erro e não navega
+                  ScaffoldMessenger.of(localContext).showSnackBar(
                     SnackBar(
                       content: Text('Erro ao salvar resultados: $e'),
                     ),
@@ -125,3 +126,4 @@ class FinalizacaoTesteDividido extends StatelessWidget {
     );
   }
 }
+
