@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:aplicacao/services/resultados_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -61,16 +62,14 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   }
 
   void _onSpacePressed() {
-    final int tempoReacao = _stopwatch.elapsedMilliseconds;
-    setState(() {
-      _resultadosDividido.add({
-        'tempo': tempoReacao,
-        'acerto': _verificarAcerto(),
-      });
-    });
-  }
+  final tempoReacao = _stopwatch.elapsedMilliseconds;
+  ResultadosCache.resultadosDividido.add({
+    'tempo': tempoReacao,
+    'acerto': verificarAcerto(),
+  });
+}
 
-  bool _verificarAcerto() {
+  bool verificarAcerto() {
     // TODO: implemente aqui a lógica real de validação do teste dividido
     return true;
   }

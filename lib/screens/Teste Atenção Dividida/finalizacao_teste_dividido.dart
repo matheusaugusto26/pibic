@@ -1,3 +1,4 @@
+import 'package:aplicacao/services/resultados_cache.dart';
 import 'package:aplicacao/services/sessao_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicacao/services/firebase_service.dart';
@@ -43,46 +44,25 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
   late final Map<String, dynamic> dadosParaPdf;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isInit) {
-      final args =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
-              {};
+void didChangeDependencies() {
+  super.didChangeDependencies();
+  if (!_isInit) {
+    // Calcula estatísticas finais de cada teste a partir do cache global
+    statsAlternado = calcularStats(ResultadosCache.resultadosAlternado);
+    statsConcentrado = calcularStats(ResultadosCache.resultadosConcentrado);
+    statsDividido = calcularStats(ResultadosCache.resultadosDividido);
 
-      // Extrai o mapa de estatísticas de alternado (já contém 'resultados', 'total', etc.)
-      final alternadoMap = args['alternado'] as Map<String, dynamic>? ?? {};
-      // Extrai o mapa de estatísticas de concentrado
-      final concentradoMap = args['concentrado'] as Map<String, dynamic>? ?? {};
-      // Extrai a lista bruta de resultados divididos
-      final divididoMap = args['dividido'] as Map<String, dynamic>? ?? {};
+    // Prepara o pacote para geração de PDF e para os Próximos Passos
+    dadosParaPdf = {
+      'alternado': statsAlternado,
+      'concentrado': statsConcentrado,
+      'dividido': statsDividido,
+    };
 
-      // Converte as listas dinamicamente tipadas
-      final listaAlternado = List<Map<String, dynamic>>.from(
-        alternadoMap['resultados'] as List<dynamic>? ?? [],
-      );
-      final listaConcentrado = List<Map<String, dynamic>>.from(
-        concentradoMap['resultados'] as List<dynamic>? ?? [],
-      );
-      final listaDividido = List<Map<String, dynamic>>.from(
-        divididoMap['resultados'] as List<dynamic>? ?? [],
-      );
-
-      // Calcula estatísticas finais de cada bateria
-      statsAlternado = calcularStats(listaAlternado);
-      statsConcentrado = calcularStats(listaConcentrado);
-      statsDividido = calcularStats(listaDividido);
-
-      // Prepara o pacote completo para PDF e próxima tela
-      dadosParaPdf = {
-        'alternado': statsAlternado,
-        'concentrado': statsConcentrado,
-        'dividido': statsDividido,
-      };
-
-      _isInit = true;
-    }
+    _isInit = true;
   }
+}
+
 
 Future<void> _salvarEProsseguir() async {
   print('✅ Finalização Dividido → Total Alternado: ${statsAlternado['resultados'].length}');

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:aplicacao/services/resultados_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -33,14 +34,12 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   }
 
   void _onSpacePressed() {
-    final int tempoReacao = _stopwatch.elapsedMilliseconds;
-    setState(() {
-      resultados.add({
-        'tempo': tempoReacao,
-        'acerto': verificarAcerto(),
-      });
-    });
-  }
+  final tempoReacao = _stopwatch.elapsedMilliseconds;
+  ResultadosCache.resultadosAlternado.add({
+    'tempo': tempoReacao,
+    'acerto': verificarAcerto(),
+  });
+}
 
   bool verificarAcerto() {
     // TODO: adaptar lógica de acerto

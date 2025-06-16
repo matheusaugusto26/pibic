@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:aplicacao/services/resultados_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -62,14 +63,13 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   }
 
   void _onSpacePressed() {
-    final int tempoReacao = _stopwatch.elapsedMilliseconds;
-    setState(() {
-      _resultadosConcentrado.add({
-        'tempo': tempoReacao,
-        'acerto': verificarAcerto(),
-      });
-    });
-  }
+  final tempoReacao = _stopwatch.elapsedMilliseconds;
+  ResultadosCache.resultadosConcentrado.add({
+    'tempo': tempoReacao,
+    'acerto': verificarAcerto(),
+  });
+}
+
 
   bool verificarAcerto() {
     // TODO: implementar a lógica real de acerto aqui
