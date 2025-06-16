@@ -61,6 +61,7 @@ class FinalizacaoTesteAlternado extends StatelessWidget {
               onPressed: () {
                 // Navega para o modelo do Teste Concentrado,
                 // passando os dados do alternado
+                print('✅ Total de respostas no Alternado: ${dadosAlternado.length}');
                 Navigator.pushReplacementNamed(
                   context,
                   '/modelotesteconcentrado',

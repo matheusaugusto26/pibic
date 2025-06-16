@@ -85,6 +85,9 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
   }
 
 Future<void> _salvarEProsseguir() async {
+  print('✅ Finalização Dividido → Total Alternado: ${statsAlternado['resultados'].length}');
+  print('✅ Finalização Dividido → Total Concentrado: ${statsConcentrado['resultados'].length}');
+  print('✅ Finalização Dividido → Total Dividido: ${statsDividido['resultados'].length}');
   final service = FirebaseService();
   try {
     final sessionData = {

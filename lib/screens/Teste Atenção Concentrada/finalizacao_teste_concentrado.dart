@@ -62,6 +62,8 @@ class FinalizacaoTesteConcentrado extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Vai para o modelo do Teste Dividido levando resultados acumulados
+                print('✅ Total no Alternado vindo do anterior: ${listaAlternado.length}');
+                print('✅ Total no Concentrado: ${listaConcentrado.length}');
                 Navigator.pushReplacementNamed(
                   context,
                   '/modelotestedividido',

@@ -39,6 +39,7 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
       // 3) Agenda o término do teste (240s) e navega para Finalização
       Timer(const Duration(seconds: 240), () {
         if (!mounted) return;
+        print('✅ Total de respostas no Dividido: ${_resultadosDividido.length}');
         Navigator.pushReplacementNamed(
           context,
           '/finalizacaotestedividido',
