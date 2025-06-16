@@ -1,3 +1,4 @@
+import 'package:aplicacao/services/sessao_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicacao/services/firebase_service.dart';
 
@@ -34,8 +35,7 @@ class FinalizacaoTesteDividido extends StatefulWidget {
       _FinalizacaoTesteDivididoState();
 }
 
-class _FinalizacaoTesteDivididoState
-    extends State<FinalizacaoTesteDividido> {
+class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
   bool _isInit = false;
   late final Map<String, dynamic> statsAlternado;
   late final Map<String, dynamic> statsConcentrado;
@@ -53,8 +53,7 @@ class _FinalizacaoTesteDivididoState
       // Extrai o mapa de estatísticas de alternado (já contém 'resultados', 'total', etc.)
       final alternadoMap = args['alternado'] as Map<String, dynamic>? ?? {};
       // Extrai o mapa de estatísticas de concentrado
-      final concentradoMap =
-          args['concentrado'] as Map<String, dynamic>? ?? {};
+      final concentradoMap = args['concentrado'] as Map<String, dynamic>? ?? {};
       // Extrai a lista bruta de resultados divididos
       final divididoMap = args['dividido'] as Map<String, dynamic>? ?? {};
 
@@ -68,6 +67,7 @@ class _FinalizacaoTesteDivididoState
       final listaDividido = List<Map<String, dynamic>>.from(
         divididoMap['resultados'] as List<dynamic>? ?? [],
       );
+      final dadosSessao = SessaoCache.sessionData;
 
       // Calcula estatísticas finais de cada bateria
       statsAlternado = calcularStats(listaAlternado);
@@ -85,33 +85,35 @@ class _FinalizacaoTesteDivididoState
     }
   }
 
-  Future<void> _salvarEProsseguir() async {
-    final service = FirebaseService();
-    try {
-      // 1) Salva a sessão e obtém um ID
-      final sessionId = await service.saveSession({
-        'startedAt': DateTime.now().toIso8601String(),
-      });
+Future<void> _salvarEProsseguir() async {
+  final service = FirebaseService();
+  try {
+    final sessionData = {
+      ...?SessaoCache.sessionData,
+      'startedAt': DateTime.now().toIso8601String(),
+    };
 
-      // 2) Salva resultados de cada bateria
-      await service.saveResults(sessionId, statsAlternado['resultados']);
-      await service.saveResults(sessionId, statsConcentrado['resultados']);
-      await service.saveResults(sessionId, statsDividido['resultados']);
+    final sessionId = await service.saveSession(sessionData);
 
-      if (!mounted) return;
-      // 3) Navega para Próximos Passos com o pacote completo
-      Navigator.pushReplacementNamed(
-        context,
-        '/proximospassos',
-        arguments: dadosParaPdf,
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar resultados: $e')),
-      );
-    }
+    await service.saveResults(sessionId, statsAlternado['resultados']);
+    await service.saveResults(sessionId, statsConcentrado['resultados']);
+    await service.saveResults(sessionId, statsDividido['resultados']);
+
+    if (!mounted) return;
+
+    Navigator.pushReplacementNamed(
+      context,
+      '/proximospassos',
+      arguments: dadosParaPdf,
+    );
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Erro ao salvar resultados: $e')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
