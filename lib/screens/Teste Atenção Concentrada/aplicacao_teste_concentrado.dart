@@ -8,44 +8,43 @@ class AplicacaoTesteConcentrado extends StatefulWidget {
   const AplicacaoTesteConcentrado({super.key});
 
   @override
-  State<AplicacaoTesteConcentrado> createState() => _AplicacaoTesteConcentradoState();
+  _AplicacaoTesteConcentradoState createState() => _AplicacaoTesteConcentradoState();
 }
 
 class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopwatch = Stopwatch();
-
-  late int numEsquerda; // Imagem fixa da esquerda
-  int numDireita = 1; // Número da direita que vai mudando
   Timer? _timer;
 
+  late int numEsquerda; // Número fixo da esquerda
+  int numDireita = 1; // Número da direita (muda)
   bool _isInit = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInit) {
-      // Sorteia a imagem da esquerda uma única vez
       numEsquerda = Random().nextInt(19) + 1;
 
       _focusNode.requestFocus();
       _stopwatch.start();
 
-      // Inicia o timer para mudar o lado direito
+      // Timer para mudar a imagem da direita
       _timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
         setState(() {
           numDireita = Random().nextInt(19) + 1;
         });
       });
 
-      // Finaliza o teste após 120 segundos
-      Timer(const Duration(seconds: 120), () {
+      // Finalizar após 120 segundos
+      Future.delayed(const Duration(seconds: 120), () {
         _timer?.cancel();
-        if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/finalizacaotesteconcentrado');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Terminado!')),
-        );
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/finalizacaotesteconcentrado');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Terminado!')),
+          );
+        }
       });
 
       _isInit = true;
@@ -122,11 +121,8 @@ class RightBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blue.shade50,
-      body: Center(
-        child: Image.asset('assets/images/img$numero.png'),
-      ),
+    return Center(
+      child: Image.asset('assets/images/img$numero.png'),
     );
   }
 }

@@ -8,44 +8,43 @@ class AplicacaoTesteDividido extends StatefulWidget {
   const AplicacaoTesteDividido({super.key});
 
   @override
-  State<AplicacaoTesteDividido> createState() => _AplicacaoTesteDivididoState();
+  _AplicacaoTesteDivididoState createState() => _AplicacaoTesteDivididoState();
 }
 
 class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopwatch = Stopwatch();
 
-  late List<int> numerosEsquerda;  // 3 imagens fixas da esquerda
-  int numeroDireita = 1;           // Imagem da direita que vai mudando
+  late List<int> numerosEsquerda; // 3 imagens fixas da esquerda
+  int numeroDireita = 1;          // Imagem da direita que muda
   Timer? _timer;
-
   bool _isInit = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInit) {
-      // Sorteia 3 imagens únicas para a esquerda
       numerosEsquerda = _sortearTresNumerosDistintos();
 
       _focusNode.requestFocus();
       _stopwatch.start();
 
-      // Timer para alterar a imagem da direita a cada 500ms
+      // Timer para alterar o lado direito a cada 500ms
       _timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
         setState(() {
           numeroDireita = Random().nextInt(19) + 1;
         });
       });
 
-      // Termina o teste após 240s
-      Timer(const Duration(seconds: 240), () {
+      // Finaliza o teste após 240 segundos
+      Future.delayed(const Duration(seconds: 240), () {
         _timer?.cancel();
-        if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/finalizacaotestedividido');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Terminado!')),
-        );
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/finalizacaotestedividido');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Terminado!')),
+          );
+        }
       });
 
       _isInit = true;
@@ -84,7 +83,8 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     return KeyboardListener(
       focusNode: _focusNode,
       onKeyEvent: (KeyEvent event) {
-        if (event.logicalKey == LogicalKeyboardKey.space && event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.space &&
+            event is KeyDownEvent) {
           _onSpacePressed();
         }
       },
@@ -132,11 +132,8 @@ class RightBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blue.shade50,
-      body: Center(
-        child: Image.asset('assets/images/img$numero.png'),
-      ),
+    return Center(
+      child: Image.asset('assets/images/img$numero.png'),
     );
   }
 }

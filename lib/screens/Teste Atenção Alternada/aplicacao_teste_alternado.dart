@@ -14,10 +14,10 @@ class AplicacaoTesteAlternado extends StatefulWidget {
 class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopwatch = Stopwatch();
+  Timer? _timer;
 
   int numEsquerda = 1;
   int numDireita = 1;
-  Timer? _timer;
 
   @override
   void initState() {
@@ -25,7 +25,10 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     _focusNode.requestFocus();
     _stopwatch.start();
 
-    // Timer para atualizar as imagens a cada 500ms
+    // Listener de teclado para a seta direita
+    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+
+    // Timer para alternar imagens a cada 500ms
     _timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
       setState(() {
         numEsquerda = Random().nextInt(19) + 1;
@@ -33,18 +36,31 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       });
     });
 
+    // Timer para finalizar o teste após 150 segundos
     Future.delayed(const Duration(seconds: 150), () {
-      _timer?.cancel();
-      if (mounted) {
-        Navigator.pushReplacementNamed(
-          context,
-          '/finalizacaotestealternado',
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Terminado!')),
-        );
-      }
+      _finalizarTeste();
     });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _timer?.cancel();
+    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
+    super.dispose();
+  }
+
+  bool _handleKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      if (HardwareKeyboard.instance.physicalKeysPressed
+          .contains(PhysicalKeyboardKey.arrowRight)) {
+        setState(() {
+          numEsquerda = Random().nextInt(19) + 1;
+          numDireita = Random().nextInt(19) + 1;
+        });
+      }
+    }
+    return false;
   }
 
   void _onSpacePressed() {
@@ -61,11 +77,14 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     return numEsquerda == numDireita;
   }
 
-  @override
-  void dispose() {
-    _focusNode.dispose();
+  void _finalizarTeste() {
     _timer?.cancel();
-    super.dispose();
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, '/finalizacaotestealternado');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Terminado!')),
+      );
+    }
   }
 
   @override
@@ -118,11 +137,8 @@ class RightBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blue.shade50,
-      body: Center(
-        child: Image.asset('assets/images/img$numero.png'),
-      ),
+    return Center(
+      child: Image.asset('assets/images/img$numero.png'),
     );
   }
 }
