@@ -67,7 +67,6 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
       final listaDividido = List<Map<String, dynamic>>.from(
         divididoMap['resultados'] as List<dynamic>? ?? [],
       );
-      final dadosSessao = SessaoCache.sessionData;
 
       // Calcula estatísticas finais de cada bateria
       statsAlternado = calcularStats(listaAlternado);
