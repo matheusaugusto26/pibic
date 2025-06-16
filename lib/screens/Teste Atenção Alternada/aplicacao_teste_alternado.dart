@@ -14,7 +14,10 @@ class AplicacaoTesteAlternado extends StatefulWidget {
 class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopwatch = Stopwatch();
-  final List<Map<String, dynamic>> resultados = [];
+
+  int numEsquerda = 1;
+  int numDireita = 1;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -22,10 +25,21 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     _focusNode.requestFocus();
     _stopwatch.start();
 
+    // Timer para atualizar as imagens a cada 500ms
+    _timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+      setState(() {
+        numEsquerda = Random().nextInt(19) + 1;
+        numDireita = Random().nextInt(19) + 1;
+      });
+    });
+
     Future.delayed(const Duration(seconds: 150), () {
+      _timer?.cancel();
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/finalizacaotestealternado',
-            arguments: resultados);
+        Navigator.pushReplacementNamed(
+          context,
+          '/finalizacaotestealternado',
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Terminado!')),
         );
@@ -34,21 +48,23 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   }
 
   void _onSpacePressed() {
-  final tempoReacao = _stopwatch.elapsedMilliseconds;
-  ResultadosCache.resultadosAlternado.add({
-    'tempo': tempoReacao,
-    'acerto': verificarAcerto(),
-  });
-}
+    final tempoReacao = _stopwatch.elapsedMilliseconds;
+    ResultadosCache.resultadosAlternado.add({
+      'tempo': tempoReacao,
+      'acerto': verificarAcerto(),
+      'numEsquerda': numEsquerda,
+      'numDireita': numDireita,
+    });
+  }
 
   bool verificarAcerto() {
-    // TODO: adaptar lógica de acerto
-    return true;
+    return numEsquerda == numDireita;
   }
 
   @override
   void dispose() {
     _focusNode.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -70,7 +86,7 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
           centerTitle: true,
           backgroundColor: Colors.blue.shade100,
         ),
-        body: const Center(
+        body: Center(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -78,14 +94,14 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
                 flex: 1,
                 child: Column(
                   children: <Widget>[
-                    SizedBox(height: 200),
-                    ImageSection(image: 'assets/images/square2.png'),
+                    const SizedBox(height: 200),
+                    Image.asset('assets/images/img$numEsquerda.png'), // Imagem da esquerda
                   ],
                 ),
               ),
               Expanded(
                 flex: 1,
-                child: RightBox(),
+                child: RightBox(numero: numDireita), // Imagem da direita
               ),
             ],
           ),
@@ -95,49 +111,26 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   }
 }
 
-class RightBox extends StatefulWidget {
-  const RightBox({super.key});
-  @override
-  State<RightBox> createState() => _RightBoxState();
-}
+class RightBox extends StatelessWidget {
+  final int numero;
 
-class _RightBoxState extends State<RightBox> {
-  int num = 1;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      setState(() {
-        num = Random().nextInt(19) + 1;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
+  const RightBox({super.key, required this.numero});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
       body: Center(
-        child: InkWell(
-          child: Image.asset('images/img$num.png'),
-        ),
+        child: Image.asset('assets/images/img$numero.png'),
       ),
     );
   }
 }
 
 class ImageSection extends StatelessWidget {
-  const ImageSection({super.key, required this.image});
-
   final String image;
+
+  const ImageSection({super.key, required this.image});
 
   @override
   Widget build(BuildContext context) {

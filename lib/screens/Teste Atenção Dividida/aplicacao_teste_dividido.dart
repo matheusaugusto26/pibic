@@ -8,50 +8,41 @@ class AplicacaoTesteDividido extends StatefulWidget {
   const AplicacaoTesteDividido({super.key});
 
   @override
-  State<AplicacaoTesteDividido> createState() =>
-      _AplicacaoTesteDivididoState();
+  State<AplicacaoTesteDividido> createState() => _AplicacaoTesteDivididoState();
 }
 
 class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopwatch = Stopwatch();
 
+  late List<int> numerosEsquerda;  // 3 imagens fixas da esquerda
+  int numeroDireita = 1;           // Imagem da direita que vai mudando
+  Timer? _timer;
+
   bool _isInit = false;
-  late Map<String, dynamic> _dadosAlternado;
-  late Map<String, dynamic> _dadosConcentrado;
-  final List<Map<String, dynamic>> _resultadosDividido = [];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInit) {
-      // 1) Recebe o Map com 'alternado' e 'concentrado' vindos da rota
-      final args =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>? ??
-              {};
+      // Sorteia 3 imagens únicas para a esquerda
+      numerosEsquerda = _sortearTresNumerosDistintos();
 
-      _dadosAlternado = args['alternado'] as Map<String, dynamic>? ?? {};
-      _dadosConcentrado = args['concentrado'] as Map<String, dynamic>? ?? {};
-
-      // 2) Prepara foco e cronômetro
       _focusNode.requestFocus();
       _stopwatch.start();
 
-      // 3) Agenda o término do teste (240s) e navega para Finalização
+      // Timer para alterar a imagem da direita a cada 500ms
+      _timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+        setState(() {
+          numeroDireita = Random().nextInt(19) + 1;
+        });
+      });
+
+      // Termina o teste após 240s
       Timer(const Duration(seconds: 240), () {
+        _timer?.cancel();
         if (!mounted) return;
-        print('✅ Total de respostas no Dividido: ${_resultadosDividido.length}');
-        Navigator.pushReplacementNamed(
-          context,
-          '/finalizacaotestedividido',
-          arguments: {
-            'alternado': _dadosAlternado,
-            'concentrado': _dadosConcentrado,
-            'dividido': {
-              'resultados': _resultadosDividido,
-            },
-          },
-        );
+        Navigator.pushReplacementNamed(context, '/finalizacaotestedividido');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Terminado!')),
         );
@@ -61,34 +52,39 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     }
   }
 
+  List<int> _sortearTresNumerosDistintos() {
+    List<int> todos = List.generate(19, (index) => index + 1);
+    todos.shuffle();
+    return todos.take(3).toList();
+  }
+
   void _onSpacePressed() {
-  final tempoReacao = _stopwatch.elapsedMilliseconds;
-  ResultadosCache.resultadosDividido.add({
-    'tempo': tempoReacao,
-    'acerto': verificarAcerto(),
-  });
-}
+    final tempoReacao = _stopwatch.elapsedMilliseconds;
+    ResultadosCache.resultadosDividido.add({
+      'tempo': tempoReacao,
+      'acerto': verificarAcerto(),
+      'numEsquerda': numerosEsquerda,
+      'numDireita': numeroDireita,
+    });
+  }
 
   bool verificarAcerto() {
-    // TODO: implemente aqui a lógica real de validação do teste dividido
-    return true;
+    return numerosEsquerda.contains(numeroDireita);
   }
 
   @override
   void dispose() {
     _focusNode.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const String appTitle = 'Teste de Atenção Dividida';
-
     return KeyboardListener(
       focusNode: _focusNode,
       onKeyEvent: (KeyEvent event) {
-        if (event.logicalKey == LogicalKeyboardKey.space &&
-            event is KeyDownEvent) {
+        if (event.logicalKey == LogicalKeyboardKey.space && event is KeyDownEvent) {
           _onSpacePressed();
         }
       },
@@ -96,11 +92,11 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: const Text(appTitle),
+          title: const Text('Aplicação do Teste Dividido'),
           centerTitle: true,
           backgroundColor: Colors.blue.shade100,
         ),
-        body: const Center(
+        body: Center(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -108,18 +104,18 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
                 flex: 1,
                 child: Column(
                   children: <Widget>[
-                    SizedBox(height: 20),
-                    ImageSection(image: 'assets/images/square1.png'),
-                    SizedBox(height: 60),
-                    ImageSection(image: 'assets/images/square2.png'),
-                    SizedBox(height: 60),
-                    ImageSection(image: 'assets/images/square3.png'),
+                    const SizedBox(height: 20),
+                    Image.asset('assets/images/img${numerosEsquerda[0]}.png'),
+                    const SizedBox(height: 60),
+                    Image.asset('assets/images/img${numerosEsquerda[1]}.png'),
+                    const SizedBox(height: 60),
+                    Image.asset('assets/images/img${numerosEsquerda[2]}.png'),
                   ],
                 ),
               ),
               Expanded(
                 flex: 1,
-                child: RightBox(),
+                child: RightBox(numero: numeroDireita),
               ),
             ],
           ),
@@ -129,57 +125,17 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   }
 }
 
-class RightBox extends StatefulWidget {
-  const RightBox({super.key});
-  @override
-  State<RightBox> createState() => _RightBoxState();
-}
+class RightBox extends StatelessWidget {
+  final int numero;
 
-class _RightBoxState extends State<RightBox> {
-  int _num = 1;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
-      setState(() {
-        _num = Random().nextInt(19) + 1;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
+  const RightBox({super.key, required this.numero});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
       body: Center(
-        child: Image.asset('assets/images/img$_num.png'),
-      ),
-    );
-  }
-}
-
-class ImageSection extends StatelessWidget {
-  const ImageSection({super.key, required this.image});
-  final String image;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 110,
-      height: 110,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(image),
-          fit: BoxFit.cover,
-        ),
+        child: Image.asset('assets/images/img$numero.png'),
       ),
     );
   }

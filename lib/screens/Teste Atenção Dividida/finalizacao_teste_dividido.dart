@@ -1,9 +1,8 @@
 import 'package:aplicacao/services/resultados_cache.dart';
 import 'package:aplicacao/services/sessao_cache.dart';
-import 'package:flutter/material.dart';
 import 'package:aplicacao/services/firebase_service.dart';
+import 'package:flutter/material.dart';
 
-/// Calcula estatísticas básicas (total, soma de tempos, média, acertos, erros e taxa)
 Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
   final total = resultados.length;
   final somaTempos = resultados.fold<int>(
@@ -26,76 +25,68 @@ Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
   };
 }
 
-/// Tela de finalização do Teste de Atenção Dividida
-/// Recebe os dados de alternado, concentrado e dividido, salva no Firebase e passa adiante.
 class FinalizacaoTesteDividido extends StatefulWidget {
   const FinalizacaoTesteDividido({super.key});
 
   @override
-  State<FinalizacaoTesteDividido> createState() =>
-      _FinalizacaoTesteDivididoState();
+  State<FinalizacaoTesteDividido> createState() => _FinalizacaoTesteDivididoState();
 }
 
 class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
-  bool _isInit = false;
   late final Map<String, dynamic> statsAlternado;
   late final Map<String, dynamic> statsConcentrado;
   late final Map<String, dynamic> statsDividido;
   late final Map<String, dynamic> dadosParaPdf;
 
+  bool _isInit = false;
+
   @override
-void didChangeDependencies() {
-  super.didChangeDependencies();
-  if (!_isInit) {
-    // Calcula estatísticas finais de cada teste a partir do cache global
-    statsAlternado = calcularStats(ResultadosCache.resultadosAlternado);
-    statsConcentrado = calcularStats(ResultadosCache.resultadosConcentrado);
-    statsDividido = calcularStats(ResultadosCache.resultadosDividido);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInit) {
+      statsAlternado = calcularStats(ResultadosCache.resultadosAlternado);
+      statsConcentrado = calcularStats(ResultadosCache.resultadosConcentrado);
+      statsDividido = calcularStats(ResultadosCache.resultadosDividido);
 
-    // Prepara o pacote para geração de PDF e para os Próximos Passos
-    dadosParaPdf = {
-      'alternado': statsAlternado,
-      'concentrado': statsConcentrado,
-      'dividido': statsDividido,
-    };
+      dadosParaPdf = {
+        'alternado': statsAlternado,
+        'concentrado': statsConcentrado,
+        'dividido': statsDividido,
+      };
 
-    _isInit = true;
+      _isInit = true;
+    }
   }
-}
 
+  Future<void> _salvarEProsseguir() async {
+    final service = FirebaseService();
 
-Future<void> _salvarEProsseguir() async {
-  print('✅ Finalização Dividido → Total Alternado: ${statsAlternado['resultados'].length}');
-  print('✅ Finalização Dividido → Total Concentrado: ${statsConcentrado['resultados'].length}');
-  print('✅ Finalização Dividido → Total Dividido: ${statsDividido['resultados'].length}');
-  final service = FirebaseService();
-  try {
-    final sessionData = {
-      ...?SessaoCache.sessionData,
-      'startedAt': DateTime.now().toIso8601String(),
-    };
+    try {
+      final sessionData = {
+        ...?SessaoCache.sessionData,
+        'startedAt': DateTime.now().toIso8601String(),
+      };
 
-    final sessionId = await service.saveSession(sessionData);
+      final sessionId = await service.saveSession(sessionData);
 
-    await service.saveResults(sessionId, statsAlternado['resultados']);
-    await service.saveResults(sessionId, statsConcentrado['resultados']);
-    await service.saveResults(sessionId, statsDividido['resultados']);
+      await service.saveResults(sessionId, statsAlternado['resultados']);
+      await service.saveResults(sessionId, statsConcentrado['resultados']);
+      await service.saveResults(sessionId, statsDividido['resultados']);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    Navigator.pushReplacementNamed(
-      context,
-      '/proximospassos',
-      arguments: dadosParaPdf,
-    );
-  } catch (e) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Erro ao salvar resultados: $e')),
-    );
+      Navigator.pushReplacementNamed(
+        context,
+        '/proximospassos',
+        arguments: dadosParaPdf,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao salvar resultados: $e')),
+      );
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
