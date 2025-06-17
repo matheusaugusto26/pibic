@@ -2,29 +2,21 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class ModeloTesteDividido extends StatefulWidget {
-  const ModeloTesteDividido({super.key});
+class ModeloTesteConcentrado extends StatefulWidget {
+  const ModeloTesteConcentrado({super.key});
 
   @override
-  State<ModeloTesteDividido> createState() => _ModeloTesteDivididoState();
+  State<ModeloTesteConcentrado> createState() => _ModeloTesteConcentradoState();
 }
 
-class _ModeloTesteDivididoState extends State<ModeloTesteDividido> {
-  List<int> numerosEsquerda = [];
+class _ModeloTesteConcentradoState extends State<ModeloTesteConcentrado> {
   int numDireita = 1;
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _sortearNumerosEsquerda();
     _focusNode.requestFocus();
-  }
-
-  void _sortearNumerosEsquerda() {
-    List<int> todos = List.generate(19, (index) => index + 1);
-    todos.shuffle();
-    numerosEsquerda = todos.take(3).toList();
   }
 
   void _handleKey(KeyEvent event) {
@@ -50,21 +42,13 @@ class _ModeloTesteDivididoState extends State<ModeloTesteDividido> {
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text('Modelo de Teste Dividido'),
+          title: const Text('Modelo de Teste Concentrado'),
           centerTitle: true,
         ),
         body: Row(
           children: [
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: numerosEsquerda
-                    .map((n) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Image.asset('assets/images/img$n.png'),
-                        ))
-                    .toList(),
-              ),
+              child: Image.asset('assets/images/square2.png'), // Imagem fixa
             ),
             Expanded(
               child: Image.asset('assets/images/img$numDireita.png'),
@@ -73,9 +57,16 @@ class _ModeloTesteDivididoState extends State<ModeloTesteDividido> {
         ),
         floatingActionButton: ElevatedButton(
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/aplicacaotestedividido');
+            Navigator.pushReplacementNamed(context, '/aplicacaotesteconcentrado');
           },
-          child: const Text('Vamos para o Teste!'),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: Colors.white,
+          ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text('Vamos para o Teste!'),
+          ),
         ),
       ),
     );

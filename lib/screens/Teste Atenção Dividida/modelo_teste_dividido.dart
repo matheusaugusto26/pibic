@@ -19,40 +19,34 @@ class _ModeloTesteDivididoState extends State<ModeloTesteDividido> {
     super.initState();
     _sortearNumerosEsquerda();
     _focusNode.requestFocus();
-    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
   }
 
   void _sortearNumerosEsquerda() {
     List<int> todos = List.generate(19, (index) => index + 1);
     todos.shuffle();
-    setState(() {
-      numerosEsquerda = todos.take(3).toList();
-    });
+    numerosEsquerda = todos.take(3).toList();
+  }
+
+  void _handleKey(KeyEvent event) {
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      setState(() {
+        numDireita = Random().nextInt(19) + 1;
+      });
+    }
   }
 
   @override
   void dispose() {
-    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     _focusNode.dispose();
     super.dispose();
-  }
-
-  bool _handleKeyEvent(KeyEvent event) {
-    if (event is KeyDownEvent) {
-      if (event.logicalKey == PhysicalKeyboardKey.arrowRight) {
-        setState(() {
-          numDireita = Random().nextInt(19) + 1;
-        });
-      }
-    }
-    return false;
   }
 
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: _focusNode,
-      onKeyEvent: _handleKeyEvent,
+      onKeyEvent: _handleKey,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
