@@ -1,20 +1,19 @@
-import 'dart:async';
 import 'dart:math';
-import 'package:aplicacao/services/resultados_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:aplicacao/services/resultados_cache.dart';
 
 class AplicacaoTesteAlternado extends StatefulWidget {
   const AplicacaoTesteAlternado({super.key});
 
   @override
-  AplicacaoTesteAlternadoState createState() => AplicacaoTesteAlternadoState();
+  State<AplicacaoTesteAlternado> createState() => _AplicacaoTesteAlternadoState();
 }
 
-class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
+class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   final FocusNode _focusNode = FocusNode();
-  final Stopwatch _stopwatch = Stopwatch();
-  Timer? _timer;
+  final Stopwatch _stopTroca = Stopwatch();
+
 
   int numEsquerda = 1;
   int numDireita = 1;
@@ -23,140 +22,62 @@ class AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   void initState() {
     super.initState();
     _focusNode.requestFocus();
-    _stopwatch.start();
-
-    // Listener de teclado para a seta direita
+    _stopTroca.start();
     HardwareKeyboard.instance.addHandler(_handleKeyEvent);
-
-    // Timer para alternar imagens a cada 500ms
-    _timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
-      setState(() {
-        numEsquerda = Random().nextInt(19) + 1;
-        numDireita = Random().nextInt(19) + 1;
-      });
-    });
-
-    // Timer para finalizar o teste após 150 segundos
-    Future.delayed(const Duration(seconds: 150), () {
-      _finalizarTeste();
-    });
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
-    _timer?.cancel();
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
+    _focusNode.dispose();
     super.dispose();
   }
 
   bool _handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
-      if (HardwareKeyboard.instance.physicalKeysPressed
-          .contains(PhysicalKeyboardKey.arrowRight)) {
+      if (event.logicalKey == PhysicalKeyboardKey.arrowRight) {
+        final tempoTroca = _stopTroca.elapsedMilliseconds;
+        _stopTroca.reset();
+        _stopTroca.start();
+
         setState(() {
           numEsquerda = Random().nextInt(19) + 1;
           numDireita = Random().nextInt(19) + 1;
+        });
+
+        ResultadosCache.resultadosAlternado.add({
+          'tipo': 'troca',
+          'tempoTroca': tempoTroca,
+          'numEsquerda': numEsquerda,
+          'numDireita': numDireita,
+        });
+      }
+      if (event.logicalKey == PhysicalKeyboardKey.space) {
+        final tempoReacao = _stopTroca.elapsedMilliseconds;
+        ResultadosCache.resultadosAlternado.add({
+          'tipo': 'reacao',
+          'tempoReacao': tempoReacao,
+          'acerto': numEsquerda == numDireita,
+          'numEsquerda': numEsquerda,
+          'numDireita': numDireita,
         });
       }
     }
     return false;
   }
 
-  void _onSpacePressed() {
-    final tempoReacao = _stopwatch.elapsedMilliseconds;
-    ResultadosCache.resultadosAlternado.add({
-      'tempo': tempoReacao,
-      'acerto': verificarAcerto(),
-      'numEsquerda': numEsquerda,
-      'numDireita': numDireita,
-    });
-  }
-
-  bool verificarAcerto() {
-    return numEsquerda == numDireita;
-  }
-
-  void _finalizarTeste() {
-    _timer?.cancel();
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, '/finalizacaotestealternado');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Terminado!')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: _focusNode,
-      onKeyEvent: (KeyEvent event) {
-        if (event.logicalKey == LogicalKeyboardKey.space &&
-            event is KeyDownEvent) {
-          _onSpacePressed();
-        }
-      },
+      onKeyEvent: _handleKeyEvent,
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text('Aplicação do Teste Alternado'),
-          centerTitle: true,
-          backgroundColor: Colors.blue.shade100,
-        ),
-        body: Center(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Column(
-                  children: <Widget>[
-                    const SizedBox(height: 200),
-                    Image.asset('assets/images/img$numEsquerda.png'), // Imagem da esquerda
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: RightBox(numero: numDireita), // Imagem da direita
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class RightBox extends StatelessWidget {
-  final int numero;
-
-  const RightBox({super.key, required this.numero});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Image.asset('assets/images/img$numero.png'),
-    );
-  }
-}
-
-class ImageSection extends StatelessWidget {
-  final String image;
-
-  const ImageSection({super.key, required this.image});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 110,
-      height: 110,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(image),
-          fit: BoxFit.cover,
+        appBar: AppBar(title: const Text('Teste Alternado')),
+        body: Row(
+          children: [
+            Expanded(child: Image.asset('assets/images/img$numEsquerda.png')),
+            Expanded(child: Image.asset('assets/images/img$numDireita.png')),
+          ],
         ),
       ),
     );

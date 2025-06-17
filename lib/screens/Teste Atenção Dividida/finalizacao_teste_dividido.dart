@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 
 Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
   final total = resultados.length;
-  final somaTempos = resultados.fold<int>(
-    0,
-    (soma, r) => soma + (r['tempo'] as int),
-  );
+  final tempos = resultados.map((r) => r['tempo'] as int).toList();
+
+  final somaTempos = tempos.fold<int>(0, (soma, t) => soma + t);
   final tempoMedio = total > 0 ? somaTempos / total : 0.0;
+  final tempoMinimo = tempos.isNotEmpty ? tempos.reduce((a, b) => a < b ? a : b) : 0;
+  final tempoMaximo = tempos.isNotEmpty ? tempos.reduce((a, b) => a > b ? a : b) : 0;
+
   final acertos = resultados.where((r) => r['acerto'] == true).length;
   final erros = total - acertos;
   final taxaAcerto = total > 0 ? (acertos / total) * 100 : 0.0;
@@ -19,6 +21,8 @@ Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
     'total': total,
     'somaTempos': somaTempos,
     'tempoMedio': tempoMedio,
+    'tempoMinimo': tempoMinimo,
+    'tempoMaximo': tempoMaximo,
     'acertos': acertos,
     'erros': erros,
     'taxaAcerto': taxaAcerto,
@@ -69,9 +73,9 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
 
       final sessionId = await service.saveSession(sessionData);
 
-      await service.saveResults(sessionId, statsAlternado['resultados']);
-      await service.saveResults(sessionId, statsConcentrado['resultados']);
-      await service.saveResults(sessionId, statsDividido['resultados']);
+      await service.saveResults(sessionId, statsAlternado['resultados'], 'Alternado');
+      await service.saveResults(sessionId, statsConcentrado['resultados'], 'Concentrado');
+      await service.saveResults(sessionId, statsDividido['resultados'], 'Dividido');
 
       if (!mounted) return;
 

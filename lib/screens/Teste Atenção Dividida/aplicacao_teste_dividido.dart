@@ -1,23 +1,21 @@
-import 'dart:async';
 import 'dart:math';
-import 'package:aplicacao/services/resultados_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:aplicacao/services/resultados_cache.dart';
 
 class AplicacaoTesteDividido extends StatefulWidget {
   const AplicacaoTesteDividido({super.key});
 
   @override
-  _AplicacaoTesteDivididoState createState() => _AplicacaoTesteDivididoState();
+  State<AplicacaoTesteDividido> createState() => _AplicacaoTesteDivididoState();
 }
 
 class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   final FocusNode _focusNode = FocusNode();
-  final Stopwatch _stopwatch = Stopwatch();
+  final Stopwatch _stopTroca = Stopwatch();
 
-  late List<int> numerosEsquerda; // 3 imagens fixas da esquerda
-  int numeroDireita = 1;          // Imagem da direita que muda
-  Timer? _timer;
+  late List<int> numerosEsquerda;
+  int numeroDireita = 1;
   bool _isInit = false;
 
   @override
@@ -25,28 +23,9 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     super.didChangeDependencies();
     if (!_isInit) {
       numerosEsquerda = _sortearTresNumerosDistintos();
-
       _focusNode.requestFocus();
-      _stopwatch.start();
-
-      // Timer para alterar o lado direito a cada 500ms
-      _timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
-        setState(() {
-          numeroDireita = Random().nextInt(19) + 1;
-        });
-      });
-
-      // Finaliza o teste após 240 segundos
-      Future.delayed(const Duration(seconds: 240), () {
-        _timer?.cancel();
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/finalizacaotestedividido');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Terminado!')),
-          );
-        }
-      });
-
+      _stopTroca.start();
+      HardwareKeyboard.instance.addHandler(_handleKeyEvent);
       _isInit = true;
     }
   }
@@ -57,83 +36,69 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     return todos.take(3).toList();
   }
 
-  void _onSpacePressed() {
-    final tempoReacao = _stopwatch.elapsedMilliseconds;
-    ResultadosCache.resultadosDividido.add({
-      'tempo': tempoReacao,
-      'acerto': verificarAcerto(),
-      'numEsquerda': numerosEsquerda,
-      'numDireita': numeroDireita,
-    });
-  }
-
-  bool verificarAcerto() {
-    return numerosEsquerda.contains(numeroDireita);
-  }
-
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     _focusNode.dispose();
-    _timer?.cancel();
     super.dispose();
+  }
+
+  bool _handleKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      if (event.logicalKey == PhysicalKeyboardKey.arrowRight) {
+        final tempoTroca = _stopTroca.elapsedMilliseconds;
+        _stopTroca.reset();
+        _stopTroca.start();
+
+        setState(() {
+          numeroDireita = Random().nextInt(19) + 1;
+        });
+
+        ResultadosCache.resultadosDividido.add({
+          'tipo': 'troca',
+          'tempoTroca': tempoTroca,
+          'numEsquerda': numerosEsquerda,
+          'numDireita': numeroDireita,
+        });
+      }
+      if (event.logicalKey == PhysicalKeyboardKey.space) {
+        final tempoReacao = _stopTroca.elapsedMilliseconds;
+        ResultadosCache.resultadosDividido.add({
+          'tipo': 'reacao',
+          'tempoReacao': tempoReacao,
+          'acerto': numerosEsquerda.contains(numeroDireita),
+          'numEsquerda': numerosEsquerda,
+          'numDireita': numeroDireita,
+        });
+      }
+    }
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: _focusNode,
-      onKeyEvent: (KeyEvent event) {
-        if (event.logicalKey == LogicalKeyboardKey.space &&
-            event is KeyDownEvent) {
-          _onSpacePressed();
-        }
-      },
+      onKeyEvent: _handleKeyEvent,
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text('Aplicação do Teste Dividido'),
-          centerTitle: true,
-          backgroundColor: Colors.blue.shade100,
-        ),
-        body: Center(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Column(
-                  children: <Widget>[
-                    const SizedBox(height: 20),
-                    Image.asset('assets/images/img${numerosEsquerda[0]}.png'),
-                    const SizedBox(height: 60),
-                    Image.asset('assets/images/img${numerosEsquerda[1]}.png'),
-                    const SizedBox(height: 60),
-                    Image.asset('assets/images/img${numerosEsquerda[2]}.png'),
-                  ],
-                ),
+        appBar: AppBar(title: const Text('Teste Dividido')),
+        body: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: numerosEsquerda
+                    .map((n) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Image.asset('assets/images/img$n.png'),
+                        ))
+                    .toList(),
               ),
-              Expanded(
-                flex: 1,
-                child: RightBox(numero: numeroDireita),
-              ),
-            ],
-          ),
+            ),
+            Expanded(child: Image.asset('assets/images/img$numeroDireita.png')),
+          ],
         ),
       ),
-    );
-  }
-}
-
-class RightBox extends StatelessWidget {
-  final int numero;
-
-  const RightBox({super.key, required this.numero});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Image.asset('assets/images/img$numero.png'),
     );
   }
 }

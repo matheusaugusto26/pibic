@@ -10,7 +10,6 @@ class ProximosPassos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1) Captura os argumentos de rota, garantindo que sejam um Map
     final args = ModalRoute.of(context)!.settings.arguments;
     final Map<String, dynamic> dados =
         args is Map<String, dynamic> ? args : {};
@@ -39,7 +38,6 @@ class ProximosPassos extends StatelessWidget {
             const SizedBox(height: 20),
             const ScrollableTextBox(),
             const SizedBox(height: 20),
-            // Botão para iniciar nova sessão
             ElevatedButton(
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/home');
@@ -51,7 +49,6 @@ class ProximosPassos extends StatelessWidget {
               child: const Text('Começar Nova Sessão de Teste'),
             ),
             const SizedBox(height: 12),
-            // Botão para exportar PDF
             ElevatedButton(
               onPressed: () async {
                 await _exportarPdf(dados);
@@ -71,72 +68,64 @@ class ProximosPassos extends StatelessWidget {
   Future<void> _exportarPdf(Map<String, dynamic> dados) async {
     final pdf = pw.Document();
 
-    // 2) Extrai estatísticas de cada teste com fallback
-    final alt = dados['alternado'] as Map<String, dynamic>? ?? {};
-    final conc = dados['concentrado'] as Map<String, dynamic>? ?? {};
-    final divi = dados['dividido'] as Map<String, dynamic>? ?? {};
+    void addStats(String titulo, Map<String, dynamic> stats) {
+      final total = stats['total'] ?? 0;
+      final acertos = stats['acertos'] ?? 0;
+      final erros = stats['erros'] ?? 0;
+      final taxa = (stats['taxaAcerto'] ?? 0.0).toDouble();
+      final soma = stats['somaTempos'] ?? 0;
+      final media = (stats['tempoMedio'] ?? 0.0).toDouble();
+      final minimo = stats['tempoMinimo'] ?? 0;
+      final maximo = stats['tempoMaximo'] ?? 0;
 
-    final totalAlt = alt['total'] as int? ?? 0;
-    final acertosAlt = alt['acertos'] as int? ?? 0;
-    final errosAlt = alt['erros'] as int? ?? 0;
-    final taxaAlt = (alt['taxaAcerto'] as num? ?? 0).toDouble();
-    final tempoAlt = (alt['tempoMedio'] as num? ?? 0).toDouble();
+      pdf.addPage(
+        pw.MultiPage(
+          build: (context) => [
+            pw.Header(level: 1, text: titulo),
+            pw.Text('Total de respostas: $total'),
+            pw.Text('Acertos: $acertos'),
+            pw.Text('Erros: $erros'),
+            pw.Text('Taxa de acerto: ${taxa.toStringAsFixed(1)}%'),
+            pw.Text('Tempo médio de reação: ${media.toStringAsFixed(0)} ms'),
+            pw.Text('Tempo mínimo de reação: $minimo ms'),
+            pw.Text('Tempo máximo de reação: $maximo ms'),
+            pw.Text('Soma total dos tempos de reação: $soma ms'),
+          ],
+        ),
+      );
+    }
 
-    final totalConc = conc['total'] as int? ?? 0;
-    final acertosConc = conc['acertos'] as int? ?? 0;
-    final errosConc = conc['erros'] as int? ?? 0;
-    final taxaConc = (conc['taxaAcerto'] as num? ?? 0).toDouble();
-    final tempoConc = (conc['tempoMedio'] as num? ?? 0).toDouble();
+    addStats('1. Teste de Atenção Alternada', dados['alternado'] ?? {});
+    addStats('2. Teste de Atenção Concentrada', dados['concentrado'] ?? {});
+    addStats('3. Teste de Atenção Dividida', dados['dividido'] ?? {});
 
-    final totalDiv = divi['total'] as int? ?? 0;
-    final acertosDiv = divi['acertos'] as int? ?? 0;
-    final errosDiv = divi['erros'] as int? ?? 0;
-    final taxaDiv = (divi['taxaAcerto'] as num? ?? 0).toDouble();
-    final tempoDiv = (divi['tempoMedio'] as num? ?? 0).toDouble();
+    final totalGeral = [
+      dados['alternado']?['total'] ?? 0,
+      dados['concentrado']?['total'] ?? 0,
+      dados['dividido']?['total'] ?? 0
+    ].reduce((a, b) => a + b);
 
-    // 3) Cálculo da porcentagem final acumulada
-    final totalGeral = totalAlt + totalConc + totalDiv;
-    final acertosGeral = acertosAlt + acertosConc + acertosDiv;
+    final acertosGeral = [
+      dados['alternado']?['acertos'] ?? 0,
+      dados['concentrado']?['acertos'] ?? 0,
+      dados['dividido']?['acertos'] ?? 0
+    ].reduce((a, b) => a + b);
+
     final percFinal =
         totalGeral > 0 ? (acertosGeral / totalGeral) * 100 : 0.0;
 
-    // 4) Monta o PDF
     pdf.addPage(
       pw.MultiPage(
         build: (context) => [
-          pw.Header(level: 0, text: 'Relatório de Avaliação Neuropsicológica'),
-          pw.Header(level: 1, text: '1. Teste de Atenção Alternada'),
-          pw.Text('Total de respostas: $totalAlt'),
-          pw.Text('Acertos: $acertosAlt'),
-          pw.Text('Erros: $errosAlt'),
-          pw.Text('Taxa de acerto: ${taxaAlt.toStringAsFixed(1)}%'),
-          pw.Text('Tempo médio de reação: ${tempoAlt.toStringAsFixed(0)} ms'),
-          pw.SizedBox(height: 12),
-          pw.Header(level: 1, text: '2. Teste de Atenção Concentrada'),
-          pw.Text('Total de respostas: $totalConc'),
-          pw.Text('Acertos: $acertosConc'),
-          pw.Text('Erros: $errosConc'),
-          pw.Text('Taxa de acerto: ${taxaConc.toStringAsFixed(1)}%'),
-          pw.Text('Tempo médio de reação: ${tempoConc.toStringAsFixed(0)} ms'),
-          pw.SizedBox(height: 12),
-          pw.Header(level: 1, text: '3. Teste de Atenção Dividida'),
-          pw.Text('Total de respostas: $totalDiv'),
-          pw.Text('Acertos: $acertosDiv'),
-          pw.Text('Erros: $errosDiv'),
-          pw.Text('Taxa de acerto: ${taxaDiv.toStringAsFixed(1)}%'),
-          pw.Text('Tempo médio de reação: ${tempoDiv.toStringAsFixed(0)} ms'),
           pw.Divider(),
-          pw.Header(level: 1, text: 'Resultado Final'),
-          pw.Text('Total Geral: $totalGeral respostas'),
-          pw.Text('Acertos Gerais: $acertosGeral'),
-          pw.Text(
-            'Porcentagem Final de Acerto: ${percFinal.toStringAsFixed(1)}%',
-          ),
+          pw.Header(level: 1, text: 'Resultado Final Geral'),
+          pw.Text('Total de respostas: $totalGeral'),
+          pw.Text('Acertos totais: $acertosGeral'),
+          pw.Text('Porcentagem final de acerto: ${percFinal.toStringAsFixed(1)}%'),
         ],
       ),
     );
 
-    // 5) Exibe/Salva o PDF
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
     );
