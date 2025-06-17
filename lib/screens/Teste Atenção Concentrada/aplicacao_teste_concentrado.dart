@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,10 +14,14 @@ class AplicacaoTesteConcentrado extends StatefulWidget {
 class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopTroca = Stopwatch();
+  final Stopwatch _stopTempoTotal = Stopwatch();
+  Timer? _timer;
 
   late int numEsquerda;
   int numDireita = 1;
   bool _isInit = false;
+
+  final int tempoLimiteSegundos = 120;
 
   @override
   void didChangeDependencies() {
@@ -25,6 +30,14 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
       numEsquerda = Random().nextInt(19) + 1;
       _focusNode.requestFocus();
       _stopTroca.start();
+      _stopTempoTotal.start();
+
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (_stopTempoTotal.elapsed.inSeconds >= tempoLimiteSegundos) {
+          _finalizarTeste();
+        }
+      });
+
       _isInit = true;
     }
   }
@@ -58,6 +71,11 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
     });
   }
 
+  void _finalizarTeste() {
+    _timer?.cancel();
+    Navigator.pushReplacementNamed(context, '/finalizacaotesteconcentrado');
+  }
+
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
@@ -75,8 +93,9 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text('Teste Concentrado'),
+          title: const Text('Aplicação do Teste Concentrado'),
           centerTitle: true,
+          automaticallyImplyLeading: false,
         ),
         body: Row(
           children: [
@@ -95,6 +114,9 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _stopTroca.stop();
+    _stopTempoTotal.stop();
+    _timer?.cancel();
     super.dispose();
   }
 }

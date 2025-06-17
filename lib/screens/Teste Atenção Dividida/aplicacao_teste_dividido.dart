@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,10 +14,14 @@ class AplicacaoTesteDividido extends StatefulWidget {
 class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopTroca = Stopwatch();
+  final Stopwatch _stopTempoTotal = Stopwatch();
+  Timer? _timer;
 
   late List<int> numerosEsquerda;
   int numeroDireita = 1;
   bool _isInit = false;
+
+  final int tempoLimiteSegundos = 240;
 
   @override
   void didChangeDependencies() {
@@ -25,6 +30,14 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
       numerosEsquerda = _sortearTresNumerosDistintos();
       _focusNode.requestFocus();
       _stopTroca.start();
+      _stopTempoTotal.start();
+
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (_stopTempoTotal.elapsed.inSeconds >= tempoLimiteSegundos) {
+          _finalizarTeste();
+        }
+      });
+
       _isInit = true;
     }
   }
@@ -64,6 +77,11 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     });
   }
 
+  void _finalizarTeste() {
+    _timer?.cancel();
+    Navigator.pushReplacementNamed(context, '/finalizacaotestedividido');
+  }
+
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
@@ -81,7 +99,8 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text('Teste Dividido'),
+          automaticallyImplyLeading: false,
+          title: const Text('Aplicação do Teste Dividido'),
           centerTitle: true,
         ),
         body: Row(
@@ -109,6 +128,9 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _stopTroca.stop();
+    _stopTempoTotal.stop();
+    _timer?.cancel();
     super.dispose();
   }
 }

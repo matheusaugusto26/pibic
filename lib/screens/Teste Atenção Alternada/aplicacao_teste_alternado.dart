@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,20 +14,33 @@ class AplicacaoTesteAlternado extends StatefulWidget {
 class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopTroca = Stopwatch();
+  final Stopwatch _stopTempoTotal = Stopwatch();
+  Timer? _timer;
 
   int numEsquerda = 1;
   int numDireita = 1;
+  final int tempoLimiteSegundos = 150;
 
   @override
   void initState() {
     super.initState();
     _focusNode.requestFocus();
     _stopTroca.start();
+    _stopTempoTotal.start();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_stopTempoTotal.elapsed.inSeconds >= tempoLimiteSegundos) {
+        _finalizarTeste();
+      }
+    });
   }
 
   @override
   void dispose() {
     _focusNode.dispose();
+    _stopTroca.stop();
+    _stopTempoTotal.stop();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -58,6 +72,11 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       'numEsquerda': numEsquerda,
       'numDireita': numDireita,
     });
+  }
+
+  void _finalizarTeste() {
+    _timer?.cancel();
+    Navigator.pushReplacementNamed(context, '/finalizacaotestealternado');
   }
 
   @override
