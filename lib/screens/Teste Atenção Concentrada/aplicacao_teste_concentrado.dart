@@ -16,7 +16,6 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
 
   late int numEsquerda;
   int numDireita = 1;
-
   bool _isInit = false;
 
   @override
@@ -26,64 +25,76 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
       numEsquerda = Random().nextInt(19) + 1;
       _focusNode.requestFocus();
       _stopTroca.start();
-      HardwareKeyboard.instance.addHandler(_handleKeyEvent);
       _isInit = true;
     }
   }
 
-  @override
-  void dispose() {
-    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
-    _focusNode.dispose();
-    super.dispose();
+  void _mudarImagemDireita() {
+    final tempoTroca = _stopTroca.elapsedMilliseconds;
+    _stopTroca.reset();
+    _stopTroca.start();
+
+    setState(() {
+      numDireita = Random().nextInt(19) + 1;
+    });
+
+    ResultadosCache.resultadosConcentrado.add({
+      'tipo': 'troca',
+      'tempoTroca': tempoTroca,
+      'numEsquerda': numEsquerda,
+      'numDireita': numDireita,
+    });
   }
 
-  bool _handleKeyEvent(KeyEvent event) {
-    if (event is KeyDownEvent) {
-      if (event.logicalKey == PhysicalKeyboardKey.arrowRight) {
-        final tempoTroca = _stopTroca.elapsedMilliseconds;
-        _stopTroca.reset();
-        _stopTroca.start();
+  void _registrarReacao() {
+    final tempoReacao = _stopTroca.elapsedMilliseconds;
 
-        setState(() {
-          numDireita = Random().nextInt(19) + 1;
-        });
-
-        ResultadosCache.resultadosConcentrado.add({
-          'tipo': 'troca',
-          'tempoTroca': tempoTroca,
-          'numEsquerda': numEsquerda,
-          'numDireita': numDireita,
-        });
-      }
-      if (event.logicalKey == PhysicalKeyboardKey.space) {
-        final tempoReacao = _stopTroca.elapsedMilliseconds;
-        ResultadosCache.resultadosConcentrado.add({
-          'tipo': 'reacao',
-          'tempoReacao': tempoReacao,
-          'acerto': numEsquerda == numDireita,
-          'numEsquerda': numEsquerda,
-          'numDireita': numDireita,
-        });
-      }
-    }
-    return false;
+    ResultadosCache.resultadosConcentrado.add({
+      'tipo': 'reacao',
+      'tempoReacao': tempoReacao,
+      'acerto': numEsquerda == numDireita,
+      'numEsquerda': numEsquerda,
+      'numDireita': numDireita,
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: _focusNode,
-      onKeyEvent: _handleKeyEvent,
+      onKeyEvent: (event) {
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+            _mudarImagemDireita();
+          }
+          if (event.logicalKey == LogicalKeyboardKey.space) {
+            _registrarReacao();
+          }
+        }
+      },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Teste Concentrado')),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          title: const Text('Teste Concentrado'),
+          centerTitle: true,
+        ),
         body: Row(
           children: [
-            Expanded(child: Image.asset('assets/images/img$numEsquerda.png')),
-            Expanded(child: Image.asset('assets/images/img$numDireita.png')),
+            Expanded(
+              child: Image.asset('assets/images/img$numEsquerda.png'),
+            ),
+            Expanded(
+              child: Image.asset('assets/images/img$numDireita.png'),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 }

@@ -5,15 +5,18 @@ import 'package:flutter/material.dart';
 
 Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
   final total = resultados.length;
-  final tempos = resultados.map((r) => r['tempo'] as int).toList();
+  final tempos = resultados
+      .where((r) => r.containsKey('tempoReacao'))
+      .map((r) => r['tempoReacao'] as int)
+      .toList();
 
   final somaTempos = tempos.fold<int>(0, (soma, t) => soma + t);
-  final tempoMedio = total > 0 ? somaTempos / total : 0.0;
+  final tempoMedio = tempos.isNotEmpty ? somaTempos / tempos.length : 0.0;
   final tempoMinimo = tempos.isNotEmpty ? tempos.reduce((a, b) => a < b ? a : b) : 0;
   final tempoMaximo = tempos.isNotEmpty ? tempos.reduce((a, b) => a > b ? a : b) : 0;
 
   final acertos = resultados.where((r) => r['acerto'] == true).length;
-  final erros = total - acertos;
+  final erros = resultados.where((r) => r['acerto'] == false).length;
   final taxaAcerto = total > 0 ? (acertos / total) * 100 : 0.0;
 
   return {
@@ -87,7 +90,10 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar resultados: $e')),
+        SnackBar(
+          content: Text('Erro ao salvar resultados: $e'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
@@ -95,12 +101,11 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text('Finalização: Atenção Dividida'),
         centerTitle: true,
-        backgroundColor: Colors.blue.shade100,
       ),
       body: Center(
         child: Column(
@@ -114,11 +119,7 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _salvarEProsseguir,
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.blue,
-                backgroundColor: Colors.white,
-              ),
-              child: const Text('Salvar no Firebase e Prosseguir'),
+              child: const Text('Salvar e Prosseguir'),
             ),
           ],
         ),

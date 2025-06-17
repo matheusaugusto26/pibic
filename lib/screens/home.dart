@@ -7,19 +7,16 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('Home.build() chamado');
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Início'),
-        centerTitle: true,
-        backgroundColor: Colors.blue.shade100,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'Software de Avaliação da Atenção',
-              style: TextStyle(fontSize: 38, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.headlineSmall, // Pegando do AppTheme
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -27,10 +24,6 @@ class Home extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/termosecondicoes');
               },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.blue,
-                backgroundColor: Colors.white,
-              ),
               child: const Text('Vamos Começar!'),
             ),
           ],

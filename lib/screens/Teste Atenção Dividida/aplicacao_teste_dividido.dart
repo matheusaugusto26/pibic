@@ -25,7 +25,6 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
       numerosEsquerda = _sortearTresNumerosDistintos();
       _focusNode.requestFocus();
       _stopTroca.start();
-      HardwareKeyboard.instance.addHandler(_handleKeyEvent);
       _isInit = true;
     }
   }
@@ -36,52 +35,55 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     return todos.take(3).toList();
   }
 
-  @override
-  void dispose() {
-    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
-    _focusNode.dispose();
-    super.dispose();
+  void _mudarImagemDireita() {
+    final tempoTroca = _stopTroca.elapsedMilliseconds;
+    _stopTroca.reset();
+    _stopTroca.start();
+
+    setState(() {
+      numeroDireita = Random().nextInt(19) + 1;
+    });
+
+    ResultadosCache.resultadosDividido.add({
+      'tipo': 'troca',
+      'tempoTroca': tempoTroca,
+      'numEsquerda': numerosEsquerda,
+      'numDireita': numeroDireita,
+    });
   }
 
-  bool _handleKeyEvent(KeyEvent event) {
-    if (event is KeyDownEvent) {
-      if (event.logicalKey == PhysicalKeyboardKey.arrowRight) {
-        final tempoTroca = _stopTroca.elapsedMilliseconds;
-        _stopTroca.reset();
-        _stopTroca.start();
+  void _registrarReacao() {
+    final tempoReacao = _stopTroca.elapsedMilliseconds;
 
-        setState(() {
-          numeroDireita = Random().nextInt(19) + 1;
-        });
-
-        ResultadosCache.resultadosDividido.add({
-          'tipo': 'troca',
-          'tempoTroca': tempoTroca,
-          'numEsquerda': numerosEsquerda,
-          'numDireita': numeroDireita,
-        });
-      }
-      if (event.logicalKey == PhysicalKeyboardKey.space) {
-        final tempoReacao = _stopTroca.elapsedMilliseconds;
-        ResultadosCache.resultadosDividido.add({
-          'tipo': 'reacao',
-          'tempoReacao': tempoReacao,
-          'acerto': numerosEsquerda.contains(numeroDireita),
-          'numEsquerda': numerosEsquerda,
-          'numDireita': numeroDireita,
-        });
-      }
-    }
-    return false;
+    ResultadosCache.resultadosDividido.add({
+      'tipo': 'reacao',
+      'tempoReacao': tempoReacao,
+      'acerto': numerosEsquerda.contains(numeroDireita),
+      'numEsquerda': numerosEsquerda,
+      'numDireita': numeroDireita,
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: _focusNode,
-      onKeyEvent: _handleKeyEvent,
+      onKeyEvent: (event) {
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+            _mudarImagemDireita();
+          }
+          if (event.logicalKey == LogicalKeyboardKey.space) {
+            _registrarReacao();
+          }
+        }
+      },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Teste Dividido')),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          title: const Text('Teste Dividido'),
+          centerTitle: true,
+        ),
         body: Row(
           children: [
             Expanded(
@@ -95,10 +97,18 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
                     .toList(),
               ),
             ),
-            Expanded(child: Image.asset('assets/images/img$numeroDireita.png')),
+            Expanded(
+              child: Image.asset('assets/images/img$numeroDireita.png'),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 }

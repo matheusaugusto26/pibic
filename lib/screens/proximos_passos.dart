@@ -15,12 +15,11 @@ class ProximosPassos extends StatelessWidget {
         args is Map<String, dynamic> ? args : {};
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text('Próximos Passos'),
         centerTitle: true,
-        backgroundColor: Colors.blue.shade100,
       ),
       body: Center(
         child: Column(
@@ -31,8 +30,9 @@ class ProximosPassos extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 'Estes são os Próximos Passos para continuar a sua Avaliação Neuropsicológica.\n'
-                'Após a leitura minuciosa e qualquer questão sanada com seu neuropsicólogo, você pode fechar esta janela.',
+                'Após a leitura minuciosa e qualquer dúvida sanada com seu neuropsicólogo, você pode fechar esta janela.',
                 textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
               ),
             ),
             const SizedBox(height: 20),
@@ -42,21 +42,13 @@ class ProximosPassos extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/home');
               },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.blue,
-                backgroundColor: Colors.white,
-              ),
               child: const Text('Começar Nova Sessão de Teste'),
             ),
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () async {
-                await _exportarPdf(dados);
+                await _exportarPdf(dados, context);
               },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.blue,
-              ),
               child: const Text('Exportar Relatório em PDF'),
             ),
           ],
@@ -65,7 +57,8 @@ class ProximosPassos extends StatelessWidget {
     );
   }
 
-  Future<void> _exportarPdf(Map<String, dynamic> dados) async {
+  Future<void> _exportarPdf(
+      Map<String, dynamic> dados, BuildContext context) async {
     final pdf = pw.Document();
 
     void addStats(String titulo, Map<String, dynamic> stats) {
@@ -79,18 +72,21 @@ class ProximosPassos extends StatelessWidget {
       final maximo = stats['tempoMaximo'] ?? 0;
 
       pdf.addPage(
-        pw.MultiPage(
-          build: (context) => [
-            pw.Header(level: 1, text: titulo),
-            pw.Text('Total de respostas: $total'),
-            pw.Text('Acertos: $acertos'),
-            pw.Text('Erros: $erros'),
-            pw.Text('Taxa de acerto: ${taxa.toStringAsFixed(1)}%'),
-            pw.Text('Tempo médio de reação: ${media.toStringAsFixed(0)} ms'),
-            pw.Text('Tempo mínimo de reação: $minimo ms'),
-            pw.Text('Tempo máximo de reação: $maximo ms'),
-            pw.Text('Soma total dos tempos de reação: $soma ms'),
-          ],
+        pw.Page(
+          build: (context) => pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Header(level: 1, text: titulo),
+              pw.Text('Total de respostas: $total'),
+              pw.Text('Acertos: $acertos'),
+              pw.Text('Erros: $erros'),
+              pw.Text('Taxa de acerto: ${taxa.toStringAsFixed(1)}%'),
+              pw.Text('Tempo médio de reação: ${media.toStringAsFixed(0)} ms'),
+              pw.Text('Tempo mínimo de reação: $minimo ms'),
+              pw.Text('Tempo máximo de reação: $maximo ms'),
+              pw.Text('Soma total dos tempos de reação: $soma ms'),
+            ],
+          ),
         ),
       );
     }
@@ -115,20 +111,29 @@ class ProximosPassos extends StatelessWidget {
         totalGeral > 0 ? (acertosGeral / totalGeral) * 100 : 0.0;
 
     pdf.addPage(
-      pw.MultiPage(
-        build: (context) => [
-          pw.Divider(),
-          pw.Header(level: 1, text: 'Resultado Final Geral'),
-          pw.Text('Total de respostas: $totalGeral'),
-          pw.Text('Acertos totais: $acertosGeral'),
-          pw.Text('Porcentagem final de acerto: ${percFinal.toStringAsFixed(1)}%'),
-        ],
+      pw.Page(
+        build: (context) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Divider(),
+            pw.Header(level: 1, text: 'Resultado Final Geral'),
+            pw.Text('Total de respostas: $totalGeral'),
+            pw.Text('Acertos totais: $acertosGeral'),
+            pw.Text('Porcentagem final de acerto: ${percFinal.toStringAsFixed(1)}%'),
+          ],
+        ),
       ),
     );
 
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
     );
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('PDF exportado com sucesso!')),
+      );
+    }
   }
 }
 
@@ -141,7 +146,7 @@ class ScrollableTextBox extends StatelessWidget {
       height: 300,
       width: 800,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.blue),
+        border: Border.all(color: Theme.of(context).primaryColor),
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Scrollbar(

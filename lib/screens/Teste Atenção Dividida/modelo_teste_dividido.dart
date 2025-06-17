@@ -1,102 +1,47 @@
-import 'package:flutter/services.dart';
-import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class ModeloTesteDividido extends StatelessWidget {
+class ModeloTesteDividido extends StatefulWidget {
   const ModeloTesteDividido({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Modelo de Teste Dividido'),
-        centerTitle: true,
-        backgroundColor: Colors.blue.shade100,
-        actions: [
-          Container(
-            margin: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(
-                    context, '/aplicacaotestedividido');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Prepare-se para a Aplicação do Teste!'),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.blue,
-                backgroundColor: Colors.white,
-              ),
-              child: const Text('Vamos para o Teste!'),
-            ),
-          ),
-        ],
-      ),
-      body: const Center(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: <Widget>[
-                  SizedBox(height: 20),
-                  ImageSection(image: 'assets/images/square1.png'),
-                  SizedBox(height: 60),
-                  ImageSection(image: 'assets/images/square2.png'),
-                  SizedBox(height: 60),
-                  ImageSection(image: 'assets/images/square3.png'),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: RightBox(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  State<ModeloTesteDividido> createState() => _ModeloTesteDivididoState();
 }
 
-class RightBox extends StatefulWidget {
-  const RightBox({super.key});
-
-  @override
-  _RightBoxState createState() => _RightBoxState();
-}
-
-class _RightBoxState extends State<RightBox> {
-  int num = 1;
-  Timer? _timer;
+class _ModeloTesteDivididoState extends State<ModeloTesteDividido> {
+  List<int> numerosEsquerda = [];
+  int numDireita = 1;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _startTimer();
+    _sortearNumerosEsquerda();
+    _focusNode.requestFocus();
     HardwareKeyboard.instance.addHandler(_handleKeyEvent);
   }
 
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      setState(() {
-        num = Random().nextInt(19) + 1;
-      });
+  void _sortearNumerosEsquerda() {
+    List<int> todos = List.generate(19, (index) => index + 1);
+    todos.shuffle();
+    setState(() {
+      numerosEsquerda = todos.take(3).toList();
     });
+  }
+
+  @override
+  void dispose() {
+    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
+    _focusNode.dispose();
+    super.dispose();
   }
 
   bool _handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
-      if (HardwareKeyboard.instance.physicalKeysPressed
-          .contains(PhysicalKeyboardKey.arrowRight)) {
+      if (event.logicalKey == PhysicalKeyboardKey.arrowRight) {
         setState(() {
-          num = Random().nextInt(19) + 1;
+          numDireita = Random().nextInt(19) + 1;
         });
       }
     }
@@ -104,34 +49,39 @@ class _RightBoxState extends State<RightBox> {
   }
 
   @override
-  void dispose() {
-    _timer?.cancel();
-    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Image.asset('assets/images/img$num.png'),
-    );
-  }
-}
-
-class ImageSection extends StatelessWidget {
-  final String image;
-
-  const ImageSection({super.key, required this.image});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 110,
-      height: 110,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(image),
-          fit: BoxFit.cover,
+    return KeyboardListener(
+      focusNode: _focusNode,
+      onKeyEvent: _handleKeyEvent,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          title: const Text('Modelo de Teste Dividido'),
+          centerTitle: true,
+        ),
+        body: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: numerosEsquerda
+                    .map((n) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Image.asset('assets/images/img$n.png'),
+                        ))
+                    .toList(),
+              ),
+            ),
+            Expanded(
+              child: Image.asset('assets/images/img$numDireita.png'),
+            ),
+          ],
+        ),
+        floatingActionButton: ElevatedButton(
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/aplicacaotestedividido');
+          },
+          child: const Text('Vamos para o Teste!'),
         ),
       ),
     );

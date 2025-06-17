@@ -1,6 +1,7 @@
 // lib/services/firebase_service.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -19,7 +20,7 @@ class FirebaseService {
   Future<void> saveResults(
       String sessionId, List<Map<String, dynamic>> results, String tipoTeste) async {
     if (results.isEmpty) {
-      print('Nenhum resultado para salvar no teste $tipoTeste da sessão $sessionId');
+      appLog('Nenhum resultado para salvar no teste $tipoTeste da sessão $sessionId');
       return;
     }
 
@@ -36,5 +37,12 @@ class FirebaseService {
     }
 
     await batch.commit();
+  }
+}
+
+/// Função simples de log que só executa no modo debug
+void appLog(String message) {
+  if (kDebugMode) {
+    print(message);
   }
 }
