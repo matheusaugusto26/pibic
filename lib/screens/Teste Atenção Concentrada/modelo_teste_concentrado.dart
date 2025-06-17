@@ -2,56 +2,69 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class ModeloTesteConcentrado extends StatefulWidget {
-  const ModeloTesteConcentrado({super.key});
+class ModeloTesteDividido extends StatefulWidget {
+  const ModeloTesteDividido({super.key});
 
   @override
-  State<ModeloTesteConcentrado> createState() => _ModeloTesteConcentradoState();
+  State<ModeloTesteDividido> createState() => _ModeloTesteDivididoState();
 }
 
-class _ModeloTesteConcentradoState extends State<ModeloTesteConcentrado> {
+class _ModeloTesteDivididoState extends State<ModeloTesteDividido> {
+  List<int> numerosEsquerda = [];
   int numDireita = 1;
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    _sortearNumerosEsquerda();
     _focusNode.requestFocus();
-    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
   }
 
-  @override
-  void dispose() {
-    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
-    _focusNode.dispose();
-    super.dispose();
+  void _sortearNumerosEsquerda() {
+    List<int> todos = List.generate(19, (index) => index + 1);
+    todos.shuffle();
+    numerosEsquerda = todos.take(3).toList();
   }
 
-  bool _handleKeyEvent(KeyEvent event) {
+  void _handleKey(KeyEvent event) {
     if (event is KeyDownEvent &&
-        event.logicalKey == PhysicalKeyboardKey.arrowRight) {
+        event.logicalKey == LogicalKeyboardKey.arrowRight) {
       setState(() {
         numDireita = Random().nextInt(19) + 1;
       });
     }
-    return false;
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: _focusNode,
-      onKeyEvent: _handleKeyEvent,
+      onKeyEvent: _handleKey,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text('Modelo de Teste Concentrado'),
+          title: const Text('Modelo de Teste Dividido'),
           centerTitle: true,
         ),
         body: Row(
           children: [
             Expanded(
-              child: Image.asset('assets/images/square2.png'), // Imagem fixa esquerda
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: numerosEsquerda
+                    .map((n) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Image.asset('assets/images/img$n.png'),
+                        ))
+                    .toList(),
+              ),
             ),
             Expanded(
               child: Image.asset('assets/images/img$numDireita.png'),
@@ -60,16 +73,9 @@ class _ModeloTesteConcentradoState extends State<ModeloTesteConcentrado> {
         ),
         floatingActionButton: ElevatedButton(
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/aplicacaotesteconcentrado');
+            Navigator.pushReplacementNamed(context, '/aplicacaotestedividido');
           },
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Theme.of(context).colorScheme.primary,
-            backgroundColor: Colors.white,
-          ),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Text('Vamos para o Teste!'),
-          ),
+          child: const Text('Vamos para o Teste!'),
         ),
       ),
     );

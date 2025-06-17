@@ -18,32 +18,29 @@ class _ModeloTesteAlternadoState extends State<ModeloTesteAlternado> {
   void initState() {
     super.initState();
     _focusNode.requestFocus();
-    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
   }
 
-  @override
-  void dispose() {
-    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  bool _handleKeyEvent(KeyEvent event) {
+  void _handleKey(KeyEvent event) {
     if (event is KeyDownEvent &&
-        event.logicalKey == PhysicalKeyboardKey.arrowRight) {
+        event.logicalKey == LogicalKeyboardKey.arrowRight) {
       setState(() {
         numEsquerda = Random().nextInt(19) + 1;
         numDireita = Random().nextInt(19) + 1;
       });
     }
-    return false;
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: _focusNode,
-      onKeyEvent: _handleKeyEvent,
+      onKeyEvent: _handleKey,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
