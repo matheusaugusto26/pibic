@@ -6,6 +6,13 @@ import 'package:flutter/foundation.dart';
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
+  /// Função simples de log que só executa no modo debug
+  void appLog(String message) {
+    if (kDebugMode) {
+      print(message);
+    }
+  }
+
   /// Salva os dados da sessão e retorna o ID gerado
   Future<String> saveSession(Map<String, dynamic> sessionData) async {
     final doc = await _db.collection('sessions').add({
@@ -28,21 +35,21 @@ class FirebaseService {
     final resultsCol = _db.collection('sessions').doc(sessionId).collection('results');
 
     for (var result in results) {
+      // Garantir que campos tipo List estejam serializáveis
+      final sanitizedResult = Map<String, dynamic>.from(result);
+      if (sanitizedResult['numEsquerda'] is List) {
+        sanitizedResult['numEsquerda'] =
+            List<int>.from(sanitizedResult['numEsquerda']);
+      }
+
       final ref = resultsCol.doc();
       batch.set(ref, {
-        ...result,
+        ...sanitizedResult,
         'tipoTeste': tipoTeste,
         'timestamp': FieldValue.serverTimestamp(),
       });
     }
 
     await batch.commit();
-  }
-}
-
-/// Função simples de log que só executa no modo debug
-void appLog(String message) {
-  if (kDebugMode) {
-    print(message);
   }
 }
