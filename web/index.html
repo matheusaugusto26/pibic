@@ -12,19 +12,23 @@
 
   <body>
     <script>
-      window.addEventListener("load", function () {
-        window.flutterLoader
-          .load({
-            onEntrypointLoaded: function (engineInitializer) {
-              engineInitializer.initializeEngine().then(function (appRunner) {
-                appRunner.runApp();
-              });
-            },
-          })
-          .catch(function (err) {
-            console.error("Erro ao carregar o Flutter:", err);
-          });
-      });
-    </script>
+  window.addEventListener("load", function () {
+    if (window.flutterLoader && typeof window.flutterLoader.load === "function") {
+      window.flutterLoader
+        .load({
+          onEntrypointLoaded: function (engineInitializer) {
+            engineInitializer.initializeEngine().then(function (appRunner) {
+              appRunner.runApp();
+            });
+          },
+        })
+        .catch(function (err) {
+          console.error("Erro ao carregar o Flutter:", err);
+        });
+    } else {
+      console.error("❌ flutterLoader ou método load não disponíveis.");
+    }
+  });
+</script>
   </body>
 </html>
