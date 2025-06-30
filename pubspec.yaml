@@ -62,4 +62,4 @@ flutter:
   fonts:
     - family: Lato
       fonts:
-        - asset: assets/fonts/Lato-Light.ttf
+        - asset: assets/fonts/Lato-Regular.ttf
