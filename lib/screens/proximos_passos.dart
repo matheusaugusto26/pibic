@@ -33,24 +33,30 @@ class ProximosPassos extends StatelessWidget {
             const SizedBox(height: 20),
             const ScrollableTextBox(),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/home');
-              },
-              child: const Text('Começar Nova Sessão de Teste'),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () async {
-                await exportarRelatorioPdf(dados, context);
-              },
-              child: const Text('Exportar Relatório em PDF'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/resultadosAnteriores');
-              },
-              child: const Text('Ver resultados anteriores'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/home');
+                  },
+                  child: const Text('Nova Sessão'),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: () async {
+                    await exportarRelatorioPdf(dados, context);
+                  },
+                  child: const Text('Exportar PDF'),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/resultadosAnteriores');
+                  },
+                  child: const Text('Ver Resultados'),
+                ),
+              ],
             ),
           ],
         ),

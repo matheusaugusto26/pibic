@@ -25,6 +25,13 @@ class Home extends StatelessWidget {
               },
               child: const Text('Vamos Começar!'),
             ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/resultadosAnteriores');
+              },
+              child: const Text('Ver Resultados Anteriores'),
+            ),
           ],
         ),
       ),
