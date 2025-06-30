@@ -5,33 +5,52 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
-  final total = resultados.length;
+  final reacoes = resultados.where((r) => r['tipo'] == 'reacao').toList();
+  final trocas = resultados.where((r) => r['tipo'] == 'troca').toList();
 
-  final acertos = resultados.where((r) => r['tipoResposta'] == 'acerto').toList();
-  final erros = resultados.where((r) => r['tipoResposta'] == 'erro').toList();
-  final omissoes = resultados.where((r) => r['tipoResposta'] == 'omissao').toList();
+  final acertos = reacoes.where((r) => r['tipoResposta'] == 'acerto').toList();
+  final erros = reacoes.where((r) => r['tipoResposta'] == 'erro').toList();
+  final omissoes = reacoes.where((r) => r['tipoResposta'] == 'omissao').toList();
 
-  final temposAcertos = acertos
+  final temposReacao = reacoes
       .where((r) => r.containsKey('tempoReacao'))
       .map((r) => r['tempoReacao'] as int)
       .toList();
 
-  final somaTempos = temposAcertos.fold<int>(0, (soma, t) => soma + t);
-  final tempoMedio = temposAcertos.isNotEmpty ? somaTempos / temposAcertos.length : 0.0;
-  final tempoMinimo = temposAcertos.isNotEmpty ? temposAcertos.reduce((a, b) => a < b ? a : b) : 0;
-  final tempoMaximo = temposAcertos.isNotEmpty ? temposAcertos.reduce((a, b) => a > b ? a : b) : 0;
+  final temposTroca = trocas
+      .where((r) => r.containsKey('tempoTroca'))
+      .map((r) => r['tempoTroca'] as int)
+      .toList();
+
+  final somaReacao = temposReacao.fold<int>(0, (soma, t) => soma + t);
+  final mediaReacao = temposReacao.isNotEmpty ? somaReacao / temposReacao.length : 0.0;
+  final minReacao = temposReacao.isNotEmpty ? temposReacao.reduce((a, b) => a < b ? a : b) : 0;
+  final maxReacao = temposReacao.isNotEmpty ? temposReacao.reduce((a, b) => a > b ? a : b) : 0;
+
+  final somaTroca = temposTroca.fold<int>(0, (soma, t) => soma + t);
+  final mediaTroca = temposTroca.isNotEmpty ? somaTroca / temposTroca.length : 0.0;
+  final minTroca = temposTroca.isNotEmpty ? temposTroca.reduce((a, b) => a < b ? a : b) : 0;
+  final maxTroca = temposTroca.isNotEmpty ? temposTroca.reduce((a, b) => a > b ? a : b) : 0;
+
+  final totalTentativas = acertos.length + erros.length + omissoes.length;
 
   return {
     'resultados': resultados,
-    'total': total,
+    'total': totalTentativas,
     'acertos': acertos.length,
     'erros': erros.length,
     'omissoes': omissoes.length,
-    'tempoAcertos': {
-      'soma': somaTempos,
-      'media': tempoMedio,
-      'minimo': tempoMinimo,
-      'maximo': tempoMaximo,
+    'tempoReacao': {
+      'soma': somaReacao,
+      'media': mediaReacao,
+      'minimo': minReacao,
+      'maximo': maxReacao,
+    },
+    'tempoTroca': {
+      'soma': somaTroca,
+      'media': mediaTroca,
+      'minimo': minTroca,
+      'maximo': maxTroca,
     },
   };
 }

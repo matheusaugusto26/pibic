@@ -27,6 +27,8 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   int _indiceAtual = 0;
   final Random _random = Random();
 
+  bool _respostaRegistrada = true;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -61,18 +63,18 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     int acertosGerados = 0;
 
     for (int i = 0; i < 20; i++) {
-      int numDireita;
+      int numDir;
 
       if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
-        numDireita = numerosEsquerda[_random.nextInt(3)];
+        numDir = numerosEsquerda[_random.nextInt(3)];
         acertosGerados++;
       } else {
         do {
-          numDireita = _random.nextInt(19) + 1;
-        } while (numerosEsquerda.contains(numDireita));
+          numDir = _random.nextInt(19) + 1;
+        } while (numerosEsquerda.contains(numDir));
       }
 
-      bloco.add({'numDireita': numDireita});
+      bloco.add({'numDireita': numDir});
     }
 
     bloco.shuffle();
@@ -85,6 +87,15 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     _stopTroca.reset();
     _stopTroca.start();
 
+    if (!_respostaRegistrada) {
+      ResultadosCache.resultadosDividido.add({
+        'tipoResposta': 'omissao',
+        'tempoTroca': tempoTroca,
+        'numEsquerda': List.from(numerosEsquerda),
+        'numDireita': numeroDireita,
+      });
+    }
+
     if (_indiceAtual >= _combinacoes.length) {
       _gerarNovoBloco();
     }
@@ -94,29 +105,37 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
       _indiceAtual++;
     });
 
-    ResultadosCache.resultadosDividido.add({
-      'tipo': 'troca',
-      'tempoTroca': tempoTroca,
-      'numEsquerda': List.from(numerosEsquerda),
-      'numDireita': numeroDireita,
-    });
+    _respostaRegistrada = false;
   }
 
   void _registrarReacao() {
+    if (_respostaRegistrada) return;
+
     final tempoReacao = _stopTroca.elapsedMilliseconds;
+    final acerto = numerosEsquerda.contains(numeroDireita);
 
     ResultadosCache.resultadosDividido.add({
-      'tipo': 'reacao',
+      'tipoResposta': acerto ? 'acerto' : 'erro',
       'tempoReacao': tempoReacao,
-      'acerto': numerosEsquerda.contains(numeroDireita),
       'numEsquerda': List.from(numerosEsquerda),
       'numDireita': numeroDireita,
     });
+
+    _respostaRegistrada = true;
   }
 
   void _finalizarTeste() {
     _timer?.cancel();
     Navigator.pushReplacementNamed(context, '/finalizacaotestedividido');
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _stopTroca.stop();
+    _stopTempoTotal.stop();
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -159,14 +178,5 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    _stopTroca.stop();
-    _stopTempoTotal.stop();
-    _timer?.cancel();
-    super.dispose();
   }
 }

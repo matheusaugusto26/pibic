@@ -27,6 +27,8 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   int _indexCombinacao = 0;
   final Random _random = Random();
 
+  bool _respostaRegistrada = true;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -50,12 +52,11 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
 
   void _gerarNovoBloco() {
     final bloco = <List<int>>[];
-    final acertosDesejados = 5 + _random.nextInt(3); // 5 a 7
+    final acertosDesejados = 5 + _random.nextInt(3);
     int acertosGerados = 0;
 
     for (int i = 0; i < 20; i++) {
       int direita;
-
       if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
         direita = numEsquerda;
         acertosGerados++;
@@ -77,6 +78,15 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
     _stopTroca.reset();
     _stopTroca.start();
 
+    if (!_respostaRegistrada) {
+      ResultadosCache.resultadosConcentrado.add({
+        'tipoResposta': 'omissao',
+        'tempoTroca': tempoTroca,
+        'numEsquerda': numEsquerda,
+        'numDireita': numDireita,
+      });
+    }
+
     if (_indexCombinacao >= _combinacoes.length) {
       _gerarNovoBloco();
     }
@@ -86,24 +96,23 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
       numDireita = combinacao[1];
     });
 
-    ResultadosCache.resultadosConcentrado.add({
-      'tipo': 'troca',
-      'tempoTroca': tempoTroca,
-      'numEsquerda': numEsquerda,
-      'numDireita': numDireita,
-    });
+    _respostaRegistrada = false;
   }
 
   void _registrarReacao() {
+    if (_respostaRegistrada) return;
+
     final tempoReacao = _stopTroca.elapsedMilliseconds;
+    final acerto = numEsquerda == numDireita;
 
     ResultadosCache.resultadosConcentrado.add({
-      'tipo': 'reacao',
+      'tipoResposta': acerto ? 'acerto' : 'erro',
       'tempoReacao': tempoReacao,
-      'acerto': numEsquerda == numDireita,
       'numEsquerda': numEsquerda,
       'numDireita': numDireita,
     });
+
+    _respostaRegistrada = true;
   }
 
   void _finalizarTeste() {

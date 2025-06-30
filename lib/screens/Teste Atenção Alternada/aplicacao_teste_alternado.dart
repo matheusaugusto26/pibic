@@ -23,6 +23,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   final int tempoLimiteSegundos = 150;
 
   List<Map<String, int>> combinacoes = [];
+  bool _respostaRegistrada = true;
 
   @override
   void initState() {
@@ -62,7 +63,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       bloco.add({'esquerda': esquerda, 'direita': direita});
     }
 
-    bloco.shuffle(); // embaralha o bloco antes de adicionar
+    bloco.shuffle();
     combinacoes.addAll(bloco);
   }
 
@@ -70,6 +71,16 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     final tempoTroca = _stopTroca.elapsedMilliseconds;
     _stopTroca.reset();
     _stopTroca.start();
+
+    // Se o usuário não respondeu, registramos como omissão
+    if (!_respostaRegistrada) {
+      ResultadosCache.resultadosAlternado.add({
+        'tipoResposta': 'omissao',
+        'tempoTroca': tempoTroca,
+        'numEsquerda': numEsquerda,
+        'numDireita': numDireita,
+      });
+    }
 
     if (combinacaoIndex >= combinacoes.length) {
       _gerarNovoBloco();
@@ -82,24 +93,23 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       numDireita = combinacao['direita']!;
     });
 
-    ResultadosCache.resultadosAlternado.add({
-      'tipo': 'troca',
-      'tempoTroca': tempoTroca,
-      'numEsquerda': numEsquerda,
-      'numDireita': numDireita,
-    });
+    _respostaRegistrada = false;
   }
 
   void _registrarReacao() {
+    if (_respostaRegistrada) return;
+
     final tempoReacao = _stopTroca.elapsedMilliseconds;
+    final acerto = numEsquerda == numDireita;
 
     ResultadosCache.resultadosAlternado.add({
-      'tipo': 'reacao',
+      'tipoResposta': acerto ? 'acerto' : 'erro',
       'tempoReacao': tempoReacao,
-      'acerto': numEsquerda == numDireita,
       'numEsquerda': numEsquerda,
       'numDireita': numDireita,
     });
+
+    _respostaRegistrada = true;
   }
 
   void _finalizarTeste() {
