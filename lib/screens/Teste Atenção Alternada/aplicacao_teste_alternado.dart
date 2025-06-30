@@ -75,7 +75,6 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     _stopTroca.reset();
     _stopTroca.start();
 
-    // Se o usuário não respondeu, registramos como omissão
     if (!_respostaRegistrada) {
       ResultadosCache.resultadosAlternado.add({
         'tipo': 'troca',
@@ -175,27 +174,36 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
             ),
           ],
         ),
-        bottomNavigationBar: BottomAppBar(
-          color: Colors.grey[100],
-          elevation: 10,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Image.asset(
-                  _espacoPressionado
-                      ? 'assets/images/spacebar_pressed.png'
-                      : 'assets/images/spacebar_normal.png',
-                  height: 40,
-                ),
-                Image.asset(
-                  _setaPressionada
-                      ? 'assets/images/arrow_right_pressed.png'
-                      : 'assets/images/arrow_right_normal.png',
-                  height: 40,
-                ),
-              ],
+        bottomNavigationBar: SizedBox(
+          height: 80,
+          child: BottomAppBar(
+            color: Colors.grey[100],
+            elevation: 10,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    height: 50,
+                    child: Image.asset(
+                      _espacoPressionado
+                          ? 'assets/images/spacebar_pressed.png'
+                          : 'assets/images/spacebar_normal.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 50,
+                    child: Image.asset(
+                      _setaPressionada
+                          ? 'assets/images/arrow_right_pressed.png'
+                          : 'assets/images/arrow_right_normal.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
