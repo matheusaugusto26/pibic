@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:aplicacao/services/sessao_cache.dart';
 import 'package:http/http.dart' as http;
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 enum SingingCharacter { masculino, feminino, intersexo }
 
@@ -31,6 +32,12 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _idadeController = TextEditingController();
   final TextEditingController _cpfController = TextEditingController();
+
+  final cpfFormatter = MaskTextInputFormatter(
+    mask: '###.###.###-##',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
+  bool _cpfVisivel = true;
 
   SingingCharacter _sexo = SingingCharacter.masculino;
   String? _estadoSelecionado;
@@ -178,13 +185,38 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
               const SizedBox(height: 20),
 
               // CPF
-              TextFormField(
-                controller: _cpfController,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Digite o CPF' : null,
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.pin),
-                  labelText: 'CPF *',
+              Focus(
+                onFocusChange: (hasFocus) {
+                  if (!hasFocus) {
+                    setState(
+                        () => _cpfVisivel = false); 
+                  } else {
+                    setState(() => _cpfVisivel = true); 
+                  }
+                },
+                child: TextFormField(
+                  controller: _cpfController,
+                  inputFormatters: [cpfFormatter],
+                  keyboardType: TextInputType.number,
+                  obscureText: !_cpfVisivel,
+                  decoration: InputDecoration(
+                    icon: const Icon(Icons.pin),
+                    labelText: 'CPF *',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _cpfVisivel ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () =>
+                          setState(() => _cpfVisivel = !_cpfVisivel),
+                    ),
+                  ),
+                  validator: (value) {
+                    final clean = cpfFormatter.getUnmaskedText();
+                    if (clean.isEmpty || clean.length != 11) {
+                      return 'CPF inválido';
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(height: 20),
