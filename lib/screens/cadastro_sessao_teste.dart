@@ -269,6 +269,7 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
                   setState(() => _cidadeSelecionada = selection);
                 },
               ),
+              const SizedBox(height: 20),
 
               Center(
                 child: ElevatedButton(
