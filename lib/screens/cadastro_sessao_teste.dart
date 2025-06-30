@@ -239,6 +239,7 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
                   });
                 },
               ),
+              const SizedBox(height: 20),
 
               // Cidade com busca
               Autocomplete<String>(
