@@ -4,13 +4,14 @@ import 'package:flutter/foundation.dart';
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  void appLog(String message) {
+  void appLog(String message, [String caller = 'FirebaseService']) {
     if (kDebugMode) {
-      print('[FirebaseService] $message');
+      print('[$caller] $message');
     }
   }
 
   Future<String> saveSession(Map<String, dynamic> sessionData) async {
+    const method = 'saveSession';
     try {
       final doc = await _db.collection('sessions').add({
         ...sessionData,
@@ -19,10 +20,10 @@ class FirebaseService {
             : FieldValue.serverTimestamp(),
       });
 
-      appLog('Sessão salva com ID: ${doc.id}');
+      appLog('Sessão salva com ID: ${doc.id}', method);
       return doc.id;
-    } catch (e) {
-      appLog('Erro ao salvar sessão: $e');
+    } catch (e, stack) {
+      appLog('Erro: $e\nStack: $stack', method);
       rethrow;
     }
   }
@@ -32,22 +33,21 @@ class FirebaseService {
     List<Map<String, dynamic>> results,
     String tipoTeste,
   ) async {
+    const method = 'saveResults';
     if (results.isEmpty) {
-      appLog('Nenhum resultado para salvar no teste $tipoTeste da sessão $sessionId');
+      appLog('Nenhum resultado para salvar no teste $tipoTeste da sessão $sessionId', method);
       return;
     }
 
     try {
       final batch = _db.batch();
-      final resultsCol =
-          _db.collection('sessions').doc(sessionId).collection('results');
+      final resultsCol = _db.collection('sessions').doc(sessionId).collection('results');
 
       for (var result in results) {
         final sanitizedResult = Map<String, dynamic>.from(result);
 
         if (sanitizedResult['numEsquerda'] is List) {
-          sanitizedResult['numEsquerda'] =
-              List<int>.from(sanitizedResult['numEsquerda']);
+          sanitizedResult['numEsquerda'] = List<int>.from(sanitizedResult['numEsquerda']);
         }
 
         final ref = resultsCol.doc();
@@ -61,9 +61,9 @@ class FirebaseService {
       }
 
       await batch.commit();
-      appLog('Resultados salvos para $tipoTeste (sessão $sessionId)');
-    } catch (e) {
-      appLog('Erro ao salvar resultados do teste $tipoTeste: $e');
+      appLog('Resultados salvos para $tipoTeste (sessão $sessionId)', method);
+    } catch (e, stack) {
+      appLog('Erro: $e\nStack: $stack', method);
       rethrow;
     }
   }
