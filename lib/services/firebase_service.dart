@@ -4,14 +4,12 @@ import 'package:flutter/foundation.dart';
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  /// Log personalizado que só aparece no modo debug
   void appLog(String message) {
     if (kDebugMode) {
       print('[FirebaseService] $message');
     }
   }
 
-  /// Salva os dados da sessão e retorna o ID gerado
   Future<String> saveSession(Map<String, dynamic> sessionData) async {
     try {
       final doc = await _db.collection('sessions').add({
@@ -29,7 +27,6 @@ class FirebaseService {
     }
   }
 
-  /// Salva os resultados como subcoleção 'results' da sessão especificada
   Future<void> saveResults(
     String sessionId,
     List<Map<String, dynamic>> results,
@@ -48,7 +45,6 @@ class FirebaseService {
       for (var result in results) {
         final sanitizedResult = Map<String, dynamic>.from(result);
 
-        // Evita problemas de serialização com listas
         if (sanitizedResult['numEsquerda'] is List) {
           sanitizedResult['numEsquerda'] =
               List<int>.from(sanitizedResult['numEsquerda']);
