@@ -15,19 +15,17 @@
   </head>
   <body>
     <script>
-      window.addEventListener("load", function () {
-        if (window._flutter && window._flutter.loader) {
-          window._flutter.loader.loadEntrypoint({
-            onEntrypointLoaded: function (engineInitializer) {
-              engineInitializer.initializeEngine().then(function (appRunner) {
-                appRunner.runApp();
-              });
-            },
-          });
-        } else {
-          console.error("_flutter.loader is undefined");
-        }
+  window.addEventListener("load", function () {
+    if (window._flutter && window._flutter.loader) {
+      window._flutter.loader.load().then((engineInitializer) => {
+        engineInitializer.initializeEngine().then((appRunner) => {
+          appRunner.runApp();
+        });
       });
-    </script>
+    } else {
+      console.error("_flutter.loader is undefined");
+    }
+  });
+</script>
   </body>
 </html>
