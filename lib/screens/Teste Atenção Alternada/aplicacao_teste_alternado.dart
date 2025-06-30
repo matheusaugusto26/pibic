@@ -20,10 +20,14 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   int numEsquerda = 1;
   int numDireita = 1;
   int combinacaoIndex = 0;
-  final int tempoLimiteSegundos = 10; //150 BEFORE
+  final int tempoLimiteSegundos = 10;
 
   List<Map<String, int>> combinacoes = [];
   bool _respostaRegistrada = true;
+
+  // Estados dos ícones de tecla
+  String spaceImage = 'assets/images/spacebar_normal.png';
+  String arrowImage = 'assets/images/arrow_right_normal.png';
 
   @override
   void initState() {
@@ -72,9 +76,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     _stopTroca.reset();
     _stopTroca.start();
 
-    // Se o usuário não respondeu, registramos como omissão
     if (!_respostaRegistrada) {
-      // 1. Registrar a omissão como reação
       ResultadosCache.resultadosAlternado.add({
         'tipo': 'reacao',
         'tipoResposta': 'omissao',
@@ -84,7 +86,6 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       });
     }
 
-    // 2. Registrar a troca normalmente
     ResultadosCache.resultadosAlternado.add({
       'tipo': 'troca',
       'tempoTroca': tempoTroca,
@@ -135,6 +136,27 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     super.dispose();
   }
 
+  void _pressionarTecla(String tecla) {
+    setState(() {
+      if (tecla == 'space') {
+        spaceImage = 'assets/images/spacebar_pressed.png';
+      } else if (tecla == 'arrow') {
+        arrowImage = 'assets/images/arrow_right_pressed.png';
+      }
+    });
+
+    // Volta imediatamente pro normal após rebuild
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        if (tecla == 'space') {
+          spaceImage = 'assets/images/spacebar_normal.png';
+        } else if (tecla == 'arrow') {
+          arrowImage = 'assets/images/arrow_right_normal.png';
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
@@ -143,8 +165,10 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
             _mudarImagens();
+            _pressionarTecla('arrow');
           } else if (event.logicalKey == LogicalKeyboardKey.space) {
             _registrarReacao();
+            _pressionarTecla('space');
           }
         }
       },
@@ -170,6 +194,19 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
               ),
             ),
           ],
+        ),
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.grey[900],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Image.asset(spaceImage, width: 64, height: 40),
+                Image.asset(arrowImage, width: 64, height: 40),
+              ],
+            ),
+          ),
         ),
       ),
     );
