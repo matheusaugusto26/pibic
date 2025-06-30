@@ -4,22 +4,30 @@
     <base href="/" />
 
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta name="description" content="Software de Avaliação da Atenção" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- PWA -->
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="apple-mobile-web-app-title" content="aplicacao" />
-    <link rel="apple-touch-icon" href="icons/Icon-192.png" />
-    <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="manifest" href="manifest.json" />
-
+    <link rel="icon" type="image/png" href="favicon.png" />
     <title>aplicacao</title>
+
     <script src="flutter.js" defer></script>
   </head>
-
   <body>
+    <script>
+      window.addEventListener("load", function () {
+        if (window.flutterLoader) {
+          window.flutterLoader.loadEntrypoint({
+            onEntrypointLoaded: function (engineInitializer) {
+              engineInitializer.initializeEngine().then(function (appRunner) {
+                appRunner.runApp();
+              });
+            },
+          });
+        } else {
+          console.error("flutterLoader is undefined");
+        }
+      });
+    </script>
   </body>
 </html>
