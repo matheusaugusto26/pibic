@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:aplicacao/services/sessao_cache.dart';
 import 'package:http/http.dart' as http;
 
@@ -153,7 +154,7 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
               Column(
                 children: SingingCharacter.values.map((sexo) {
                   return RadioListTile<SingingCharacter>(
-                    title: Text(sexo.label), 
+                    title: Text(sexo.label),
                     value: sexo,
                     groupValue: _sexo,
                     onChanged: (value) {
@@ -207,49 +208,33 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
               ),
               const SizedBox(height: 20),
 
-              // Estado
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.map),
-                  labelText: 'Estado *',
-                ),
-                value: _estadoSelecionado,
-                items: _estados
-                    .map((estado) => DropdownMenuItem<String>(
-                          value: estado['sigla'] as String,
-                          child: Text(estado['nome'] as String),
-                        ))
-                    .toList(),
-                validator: (value) =>
-                    value == null ? 'Selecione um estado' : null,
-                onChanged: (estado) {
+              // Estado com busca
+              DropdownSearch<String>(
+                mode: Mode.BOTTOM_SHEET,
+                showSearchBox: true,
+                items: _estados.map<String>((estado) => estado['sigla'] as String).toList(),
+                label: "Estado *",
+                selectedItem: _estadoSelecionado,
+                onChanged: (value) {
                   setState(() {
-                    _estadoSelecionado = estado;
+                    _estadoSelecionado = value;
                     _cidadeSelecionada = null;
                   });
-                  if (estado != null) _carregarCidades(estado);
+                  if (value != null) _carregarCidades(value);
                 },
+                validator: (value) => value == null ? 'Selecione um estado' : null,
               ),
               const SizedBox(height: 20),
 
-              // Cidade
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.location_city),
-                  labelText: 'Cidade *',
-                ),
-                value: _cidadeSelecionada,
-                items: _cidades
-                    .map((cidade) => DropdownMenuItem(
-                          value: cidade,
-                          child: Text(cidade),
-                        ))
-                    .toList(),
-                validator: (value) =>
-                    value == null ? 'Selecione uma cidade' : null,
-                onChanged: (cidade) {
-                  setState(() => _cidadeSelecionada = cidade);
-                },
+              // Cidade com busca
+              DropdownSearch<String>(
+                mode: Mode.BOTTOM_SHEET,
+                showSearchBox: true,
+                items: _cidades,
+                label: "Cidade *",
+                selectedItem: _cidadeSelecionada,
+                onChanged: (value) => setState(() => _cidadeSelecionada = value),
+                validator: (value) => value == null ? 'Selecione uma cidade' : null,
               ),
               const SizedBox(height: 30),
 
