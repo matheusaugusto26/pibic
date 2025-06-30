@@ -20,7 +20,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   int numEsquerda = 1;
   int numDireita = 1;
   int combinacaoIndex = 0;
-  final int tempoLimiteSegundos = 150;
+  final int tempoLimiteSegundos = 10; //150 BEFORE
 
   List<Map<String, int>> combinacoes = [];
   bool _respostaRegistrada = true;
