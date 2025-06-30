@@ -41,13 +41,11 @@ Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
     'erros': erros.length,
     'omissoes': omissoes.length,
     'tempoReacao': {
-      'soma': somaReacao,
       'media': mediaReacao,
       'minimo': minReacao,
       'maximo': maxReacao,
     },
     'tempoTroca': {
-      'soma': somaTroca,
       'media': mediaTroca,
       'minimo': minTroca,
       'maximo': maxTroca,
