@@ -12,12 +12,12 @@ Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
   final omissoes = reacoes.where((r) => r['tipoResposta'] == 'omissao').toList();
 
   final temposReacao = reacoes
-      .where((r) => r.containsKey('tempoReacao'))
+      .where((r) => r.containsKey('tempoReacao') && r['tempoReacao'] is int)
       .map((r) => r['tempoReacao'] as int)
       .toList();
 
   final temposTroca = trocas
-      .where((r) => r.containsKey('tempoTroca'))
+      .where((r) => r.containsKey('tempoTroca') && r['tempoTroca'] is int)
       .map((r) => r['tempoTroca'] as int)
       .toList();
 
@@ -52,11 +52,13 @@ Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
   };
 }
 
+
 class FinalizacaoTesteDividido extends StatefulWidget {
   const FinalizacaoTesteDividido({super.key});
 
   @override
-  State<FinalizacaoTesteDividido> createState() => _FinalizacaoTesteDivididoState();
+  State<FinalizacaoTesteDividido> createState() =>
+      _FinalizacaoTesteDivididoState();
 }
 
 class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
@@ -100,13 +102,16 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
       final sessionId = await service.saveSession(sessionData);
 
       print('💾 Salvando resultados alternado');
-      await service.saveResults(sessionId, statsAlternado['resultados'], 'Alternado');
+      await service.saveResults(
+          sessionId, statsAlternado['resultados'], 'Alternado');
 
       print('💾 Salvando resultados concentrado');
-      await service.saveResults(sessionId, statsConcentrado['resultados'], 'Concentrado');
+      await service.saveResults(
+          sessionId, statsConcentrado['resultados'], 'Concentrado');
 
       print('💾 Salvando resultados dividido');
-      await service.saveResults(sessionId, statsDividido['resultados'], 'Dividido');
+      await service.saveResults(
+          sessionId, statsDividido['resultados'], 'Dividido');
 
       if (!mounted) return;
 
