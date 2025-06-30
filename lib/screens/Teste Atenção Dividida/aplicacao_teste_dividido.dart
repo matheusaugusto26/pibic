@@ -17,21 +17,22 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   final Stopwatch _stopTempoTotal = Stopwatch();
   Timer? _timer;
 
-  late List<int> numerosEsquerda;
+  List<int> numerosEsquerda = [];
   int numeroDireita = 1;
   bool _isInit = false;
 
   final int tempoLimiteSegundos = 240;
 
-  List<Map<String, int>> _combinacoes = [];
+  final List<Map<String, int>> _combinacoes = [];
   int _indiceAtual = 0;
+  final Random _random = Random();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInit) {
       numerosEsquerda = _sortearTresNumerosDistintos();
-      _gerarCombinacoes();
+      _gerarNovoBloco();
 
       _focusNode.requestFocus();
       _stopTroca.start();
@@ -53,26 +54,25 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     return todos.take(3).toList();
   }
 
-  void _gerarCombinacoes() {
-    final random = Random();
+  void _gerarNovoBloco() {
     _combinacoes.clear();
-    int acertosPorBloco = 5 + random.nextInt(3); // 5 a 7 acertos
+    final bloco = <Map<String, int>>[];
+    final acertosDesejados = 5 + _random.nextInt(3);
+    int acertosGerados = 0;
 
-    List<Map<String, int>> bloco = [];
-    List<int> imagens = List.generate(19, (i) => i + 1);
+    for (int i = 0; i < 20; i++) {
+      int numDireita;
 
-    // Gerar acertos
-    for (int i = 0; i < acertosPorBloco; i++) {
-      bloco.add({'numDireita': numerosEsquerda[random.nextInt(3)]});
-    }
+      if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
+        numDireita = numerosEsquerda[_random.nextInt(3)];
+        acertosGerados++;
+      } else {
+        do {
+          numDireita = _random.nextInt(19) + 1;
+        } while (numerosEsquerda.contains(numDireita));
+      }
 
-    // Gerar erros
-    while (bloco.length < 20) {
-      int numErro;
-      do {
-        numErro = imagens[random.nextInt(19)];
-      } while (numerosEsquerda.contains(numErro));
-      bloco.add({'numDireita': numErro});
+      bloco.add({'numDireita': numDireita});
     }
 
     bloco.shuffle();
@@ -86,7 +86,7 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     _stopTroca.start();
 
     if (_indiceAtual >= _combinacoes.length) {
-      _gerarCombinacoes();
+      _gerarNovoBloco();
     }
 
     setState(() {
@@ -127,8 +127,7 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
             _mudarImagemDireita();
-          }
-          if (event.logicalKey == LogicalKeyboardKey.space) {
+          } else if (event.logicalKey == LogicalKeyboardKey.space) {
             _registrarReacao();
           }
         }

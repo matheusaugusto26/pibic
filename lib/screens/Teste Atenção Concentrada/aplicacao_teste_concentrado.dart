@@ -17,13 +17,13 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   final Stopwatch _stopTempoTotal = Stopwatch();
   Timer? _timer;
 
-  late int numEsquerda;
+  int numEsquerda = 1;
   int numDireita = 1;
   bool _isInit = false;
 
   final int tempoLimiteSegundos = 120;
 
-  List<List<int>> _combinacoes = [];
+  final List<List<int>> _combinacoes = [];
   int _indexCombinacao = 0;
   final Random _random = Random();
 
@@ -32,7 +32,7 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
     super.didChangeDependencies();
     if (!_isInit) {
       numEsquerda = _random.nextInt(19) + 1;
-      _gerarCombinacoes();
+      _gerarNovoBloco();
 
       _focusNode.requestFocus();
       _stopTroca.start();
@@ -48,27 +48,28 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
     }
   }
 
-  void _gerarCombinacoes() {
-    List<List<int>> novasCombinacoes = [];
-    int acertos = 5 + _random.nextInt(3); // 5 a 7 acertos
+  void _gerarNovoBloco() {
+    final bloco = <List<int>>[];
+    final acertosDesejados = 5 + _random.nextInt(3); // 5 a 7
+    int acertosGerados = 0;
 
-    // Gera os acertos
-    for (int i = 0; i < acertos; i++) {
-      int n = _random.nextInt(19) + 1;
-      novasCombinacoes.add([numEsquerda, n]);
-    }
+    for (int i = 0; i < 20; i++) {
+      int direita;
 
-    // Gera os erros
-    while (novasCombinacoes.length < 20) {
-      int a = numEsquerda;
-      int b = _random.nextInt(19) + 1;
-      if (a != b) {
-        novasCombinacoes.add([a, b]);
+      if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
+        direita = numEsquerda;
+        acertosGerados++;
+      } else {
+        do {
+          direita = _random.nextInt(19) + 1;
+        } while (direita == numEsquerda);
       }
+
+      bloco.add([numEsquerda, direita]);
     }
 
-    novasCombinacoes.shuffle();
-    _combinacoes.addAll(novasCombinacoes);
+    bloco.shuffle();
+    _combinacoes.addAll(bloco);
   }
 
   void _mudarImagemDireita() {
@@ -77,7 +78,7 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
     _stopTroca.start();
 
     if (_indexCombinacao >= _combinacoes.length) {
-      _gerarCombinacoes();
+      _gerarNovoBloco();
     }
 
     final combinacao = _combinacoes[_indexCombinacao++];
@@ -111,6 +112,15 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   }
 
   @override
+  void dispose() {
+    _focusNode.dispose();
+    _stopTroca.stop();
+    _stopTempoTotal.stop();
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: _focusNode,
@@ -118,8 +128,7 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
             _mudarImagemDireita();
-          }
-          if (event.logicalKey == LogicalKeyboardKey.space) {
+          } else if (event.logicalKey == LogicalKeyboardKey.space) {
             _registrarReacao();
           }
         }
@@ -143,14 +152,5 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    _stopTroca.stop();
-    _stopTempoTotal.stop();
-    _timer?.cancel();
-    super.dispose();
   }
 }

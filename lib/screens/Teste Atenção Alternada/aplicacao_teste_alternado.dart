@@ -43,7 +43,6 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     final random = Random();
     final bloco = <Map<String, int>>[];
 
-    // Decide aleatoriamente quantos pares serão iguais (5 a 7)
     final acertosDesejados = 5 + random.nextInt(3);
     int acertosGerados = 0;
 
@@ -52,11 +51,9 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       int direita;
 
       if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
-        // Força acerto
         direita = esquerda;
         acertosGerados++;
       } else {
-        // Garante que seja diferente
         do {
           direita = random.nextInt(19) + 1;
         } while (direita == esquerda);
@@ -65,6 +62,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       bloco.add({'esquerda': esquerda, 'direita': direita});
     }
 
+    bloco.shuffle(); // embaralha o bloco antes de adicionar
     combinacoes.addAll(bloco);
   }
 
