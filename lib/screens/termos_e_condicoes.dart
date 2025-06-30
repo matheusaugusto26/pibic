@@ -57,15 +57,25 @@ class ScrollableTextBox extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-              'Cras commodo condimentum turpis, at feugiat ipsum tempus eget. '
-              'Sed ac enim vitae eros venenatis lacinia quis ut risus. '
-              'Nunc at viverra eros, at commodo justo. Nunc at rhoncus lectus. '
-              'Nullam interdum sagittis orci, nec commodo metus bibendum non. '
-              'Sed non pulvinar augue, a placerat odio. Aliquam cursus enim a '
-              'tristique ullamcorper. Vestibulum vestibulum tellus at tempor '
-              'consectetur. Nullam tempor dui eget risus euismod aliquam et '
-              'eget erat.\n\n(…continua conforme necessário…)',
+'''
+1. Objetivo do Aplicativo   
+Este aplicativo foi desenvolvido exclusivamente para fins de pesquisa científica no contexto do projeto de Iniciação Científica (PIBIC). Seu objetivo é avaliar aspectos da atenção em diferentes contextos, por meio de testes controlados aplicados aos participantes.
+
+2. Consentimento do Participante  
+Ao utilizar este aplicativo, você declara estar ciente de que está participando voluntariamente de uma pesquisa. Todos os dados coletados serão utilizados apenas para fins acadêmicos e de pesquisa, garantindo o anonimato e a confidencialidade dos participantes.
+
+3. Coleta e Armazenamento de Dados  
+Durante a utilização do aplicativo, serão registrados tempos de reação, respostas a estímulos visuais e outras métricas relacionadas à atenção. Esses dados são armazenados de forma segura e não permitem a identificação direta do participante.
+
+4. Direitos do Participante  
+Você tem o direito de interromper sua participação a qualquer momento, sem necessidade de justificativa. Em caso de dúvidas ou desconforto, entre em contato com os responsáveis pela pesquisa.
+
+5. Responsabilidade e Limitações  
+Este aplicativo não substitui nenhum tipo de diagnóstico clínico. Os testes presentes foram criados para fins experimentais e acadêmicos, e os resultados não devem ser interpretados como laudos médicos.
+
+6. Aceitação dos Termos  
+Ao continuar utilizando o aplicativo, você concorda com os termos apresentados acima e autoriza a utilização dos seus dados conforme descrito.
+''',
               style: TextStyle(fontSize: 16),
             ),
           ),
