@@ -44,7 +44,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     final random = Random();
     final bloco = <Map<String, int>>[];
 
-    final acertosDesejados = 5 + random.nextInt(3);
+    final acertosDesejados = 5 + random.nextInt(3); // entre 5 e 7
     int acertosGerados = 0;
 
     for (int i = 0; i < 20; i++) {
@@ -72,6 +72,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     _stopTroca.reset();
     _stopTroca.start();
 
+    // Se o usuário não respondeu, registramos como omissão
     if (!_respostaRegistrada) {
       ResultadosCache.resultadosAlternado.add({
         'tipo': 'troca',

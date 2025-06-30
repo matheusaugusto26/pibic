@@ -8,12 +8,10 @@ class AplicacaoTesteConcentrado extends StatefulWidget {
   const AplicacaoTesteConcentrado({super.key});
 
   @override
-  State<AplicacaoTesteConcentrado> createState() =>
-      _AplicacaoTesteConcentradoState();
+  State<AplicacaoTesteConcentrado> createState() => _AplicacaoTesteConcentradoState();
 }
 
-class _AplicacaoTesteConcentradoState
-    extends State<AplicacaoTesteConcentrado> {
+class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopTroca = Stopwatch();
   final Stopwatch _stopTempoTotal = Stopwatch();
@@ -59,8 +57,7 @@ class _AplicacaoTesteConcentradoState
 
     for (int i = 0; i < 20; i++) {
       int direita;
-      if (acertosGerados < acertosDesejados &&
-          (20 - i) > (acertosDesejados - acertosGerados)) {
+      if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
         direita = numEsquerda;
         acertosGerados++;
       } else {
@@ -81,6 +78,7 @@ class _AplicacaoTesteConcentradoState
     _stopTroca.reset();
     _stopTroca.start();
 
+    // Se o usuário não respondeu, registramos como omissão
     if (!_respostaRegistrada) {
       ResultadosCache.resultadosConcentrado.add({
         'tipo': 'troca',
