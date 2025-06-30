@@ -9,7 +9,7 @@ class AppTheme {
         brightness: Brightness.light,
       ),
       scaffoldBackgroundColor: Colors.white,
-      fontFamily: 'Poppins',
+      fontFamily: 'Lato',
 
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.blue.shade100,
