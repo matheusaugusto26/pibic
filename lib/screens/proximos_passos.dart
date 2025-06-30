@@ -11,8 +11,7 @@ class ProximosPassos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments;
-    final Map<String, dynamic> dados =
-        args is Map<String, dynamic> ? args : {};
+    final Map<String, dynamic> dados = args is Map<String, dynamic> ? args : {};
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -61,39 +60,61 @@ class ProximosPassos extends StatelessWidget {
       Map<String, dynamic> dados, BuildContext context) async {
     final pdf = pw.Document();
 
-    void addStats(String titulo, Map<String, dynamic> stats) {
+    pw.Widget buildTable(String titulo, Map<String, dynamic> stats) {
       final total = stats['total'] ?? 0;
       final acertos = stats['acertos'] ?? 0;
       final erros = stats['erros'] ?? 0;
-      final taxa = (stats['taxaAcerto'] ?? 0.0).toDouble();
-      final soma = stats['somaTempos'] ?? 0;
-      final media = (stats['tempoMedio'] ?? 0.0).toDouble();
-      final minimo = stats['tempoMinimo'] ?? 0;
-      final maximo = stats['tempoMaximo'] ?? 0;
+      final omissoes = stats['omissoes'] ?? 0;
+      final tempo = stats['tempoAcertos'] ?? {};
 
-      pdf.addPage(
-        pw.Page(
-          build: (context) => pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
+      final soma = tempo['soma'] ?? 0;
+      final media = (tempo['media'] ?? 0.0).toDouble();
+      final minimo = tempo['minimo'] ?? 0;
+      final maximo = tempo['maximo'] ?? 0;
+
+      return pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(titulo, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+          pw.Table(
+            border: pw.TableBorder.all(),
             children: [
-              pw.Header(level: 1, text: titulo),
-              pw.Text('Total de respostas: $total'),
-              pw.Text('Acertos: $acertos'),
-              pw.Text('Erros: $erros'),
-              pw.Text('Taxa de acerto: ${taxa.toStringAsFixed(1)}%'),
-              pw.Text('Tempo médio de reação: ${media.toStringAsFixed(0)} ms'),
-              pw.Text('Tempo mínimo de reação: $minimo ms'),
-              pw.Text('Tempo máximo de reação: $maximo ms'),
-              pw.Text('Soma total dos tempos de reação: $soma ms'),
+              pw.TableRow(children: [
+                pw.Text('Total', textAlign: pw.TextAlign.center),
+                pw.Text('Acertos', textAlign: pw.TextAlign.center),
+                pw.Text('Erros', textAlign: pw.TextAlign.center),
+                pw.Text('Omissões', textAlign: pw.TextAlign.center),
+              ]),
+              pw.TableRow(children: [
+                pw.Text('$total', textAlign: pw.TextAlign.center),
+                pw.Text('$acertos', textAlign: pw.TextAlign.center),
+                pw.Text('$erros', textAlign: pw.TextAlign.center),
+                pw.Text('$omissoes', textAlign: pw.TextAlign.center),
+              ]),
             ],
           ),
-        ),
+          pw.SizedBox(height: 4),
+          pw.Table(
+            border: pw.TableBorder.all(),
+            children: [
+              pw.TableRow(children: [
+                pw.Text('Tempo Total', textAlign: pw.TextAlign.center),
+                pw.Text('Média (ms)', textAlign: pw.TextAlign.center),
+                pw.Text('Mínimo (ms)', textAlign: pw.TextAlign.center),
+                pw.Text('Máximo (ms)', textAlign: pw.TextAlign.center),
+              ]),
+              pw.TableRow(children: [
+                pw.Text('$soma', textAlign: pw.TextAlign.center),
+                pw.Text('${media.toStringAsFixed(0)}', textAlign: pw.TextAlign.center),
+                pw.Text('$minimo', textAlign: pw.TextAlign.center),
+                pw.Text('$maximo', textAlign: pw.TextAlign.center),
+              ]),
+            ],
+          ),
+          pw.SizedBox(height: 12),
+        ],
       );
     }
-
-    addStats('1. Teste de Atenção Alternada', dados['alternado'] ?? {});
-    addStats('2. Teste de Atenção Concentrada', dados['concentrado'] ?? {});
-    addStats('3. Teste de Atenção Dividida', dados['dividido'] ?? {});
 
     final totalGeral = [
       dados['alternado']?['total'] ?? 0,
@@ -107,16 +128,18 @@ class ProximosPassos extends StatelessWidget {
       dados['dividido']?['acertos'] ?? 0
     ].reduce((a, b) => a + b);
 
-    final percFinal =
-        totalGeral > 0 ? (acertosGeral / totalGeral) * 100 : 0.0;
+    final percFinal = totalGeral > 0 ? (acertosGeral / totalGeral) * 100 : 0.0;
 
     pdf.addPage(
       pw.Page(
         build: (context) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
+            buildTable('1. Teste de Atenção Alternada', dados['alternado'] ?? {}),
+            buildTable('2. Teste de Atenção Concentrada', dados['concentrado'] ?? {}),
+            buildTable('3. Teste de Atenção Dividida', dados['dividido'] ?? {}),
             pw.Divider(),
-            pw.Header(level: 1, text: 'Resultado Final Geral'),
+            pw.Text('Resumo Geral', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
             pw.Text('Total de respostas: $totalGeral'),
             pw.Text('Acertos totais: $acertosGeral'),
             pw.Text('Porcentagem final de acerto: ${percFinal.toStringAsFixed(1)}%'),

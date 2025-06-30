@@ -6,30 +6,33 @@ import 'package:firebase_core/firebase_core.dart';
 
 Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
   final total = resultados.length;
-  final tempos = resultados
+
+  final acertos = resultados.where((r) => r['tipoResposta'] == 'acerto').toList();
+  final erros = resultados.where((r) => r['tipoResposta'] == 'erro').toList();
+  final omissoes = resultados.where((r) => r['tipoResposta'] == 'omissao').toList();
+
+  final temposAcertos = acertos
       .where((r) => r.containsKey('tempoReacao'))
       .map((r) => r['tempoReacao'] as int)
       .toList();
 
-  final somaTempos = tempos.fold<int>(0, (soma, t) => soma + t);
-  final tempoMedio = tempos.isNotEmpty ? somaTempos / tempos.length : 0.0;
-  final tempoMinimo = tempos.isNotEmpty ? tempos.reduce((a, b) => a < b ? a : b) : 0;
-  final tempoMaximo = tempos.isNotEmpty ? tempos.reduce((a, b) => a > b ? a : b) : 0;
-
-  final acertos = resultados.where((r) => r['acerto'] == true).length;
-  final erros = resultados.where((r) => r['acerto'] == false).length;
-  final taxaAcerto = total > 0 ? (acertos / total) * 100 : 0.0;
+  final somaTempos = temposAcertos.fold<int>(0, (soma, t) => soma + t);
+  final tempoMedio = temposAcertos.isNotEmpty ? somaTempos / temposAcertos.length : 0.0;
+  final tempoMinimo = temposAcertos.isNotEmpty ? temposAcertos.reduce((a, b) => a < b ? a : b) : 0;
+  final tempoMaximo = temposAcertos.isNotEmpty ? temposAcertos.reduce((a, b) => a > b ? a : b) : 0;
 
   return {
     'resultados': resultados,
     'total': total,
-    'somaTempos': somaTempos,
-    'tempoMedio': tempoMedio,
-    'tempoMinimo': tempoMinimo,
-    'tempoMaximo': tempoMaximo,
-    'acertos': acertos,
-    'erros': erros,
-    'taxaAcerto': taxaAcerto,
+    'acertos': acertos.length,
+    'erros': erros.length,
+    'omissoes': omissoes.length,
+    'tempoAcertos': {
+      'soma': somaTempos,
+      'media': tempoMedio,
+      'minimo': tempoMinimo,
+      'maximo': tempoMaximo,
+    },
   };
 }
 
@@ -70,34 +73,27 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
     final service = FirebaseService();
 
     try {
-      print('[DEBUG] Inicializando Firebase...');
-      await Firebase.initializeApp(); // Necessário para Web!
+      await Firebase.initializeApp();
 
       final sessionData = {
         ...?SessaoCache.sessionData,
         'startedAt': DateTime.now().toIso8601String(),
       };
-      print('[DEBUG] Dados da sessão: $sessionData');
 
       final sessionId = await service.saveSession(sessionData);
-      print('[DEBUG] Sessão salva com ID: $sessionId');
 
-      print('[DEBUG] Salvando resultados...');
       await service.saveResults(sessionId, statsAlternado['resultados'], 'Alternado');
       await service.saveResults(sessionId, statsConcentrado['resultados'], 'Concentrado');
       await service.saveResults(sessionId, statsDividido['resultados'], 'Dividido');
 
       if (!mounted) return;
 
-      print('[DEBUG] Navegando para /proximospassos...');
       Navigator.pushReplacementNamed(
         context,
         '/proximospassos',
         arguments: dadosParaPdf,
       );
-    } catch (e, stack) {
-      print('[ERRO] $e');
-      print(stack);
+    } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

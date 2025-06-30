@@ -19,7 +19,10 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
 
   int numEsquerda = 1;
   int numDireita = 1;
+  int combinacaoIndex = 0;
   final int tempoLimiteSegundos = 150;
+
+  List<Map<String, int>> combinacoes = [];
 
   @override
   void initState() {
@@ -27,6 +30,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     _focusNode.requestFocus();
     _stopTroca.start();
     _stopTempoTotal.start();
+    _gerarNovoBloco();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_stopTempoTotal.elapsed.inSeconds >= tempoLimiteSegundos) {
@@ -35,13 +39,33 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     });
   }
 
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    _stopTroca.stop();
-    _stopTempoTotal.stop();
-    _timer?.cancel();
-    super.dispose();
+  void _gerarNovoBloco() {
+    final random = Random();
+    final bloco = <Map<String, int>>[];
+
+    // Decide aleatoriamente quantos pares serão iguais (5 a 7)
+    final acertosDesejados = 5 + random.nextInt(3);
+    int acertosGerados = 0;
+
+    for (int i = 0; i < 20; i++) {
+      int esquerda = random.nextInt(19) + 1;
+      int direita;
+
+      if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
+        // Força acerto
+        direita = esquerda;
+        acertosGerados++;
+      } else {
+        // Garante que seja diferente
+        do {
+          direita = random.nextInt(19) + 1;
+        } while (direita == esquerda);
+      }
+
+      bloco.add({'esquerda': esquerda, 'direita': direita});
+    }
+
+    combinacoes.addAll(bloco);
   }
 
   void _mudarImagens() {
@@ -49,9 +73,15 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     _stopTroca.reset();
     _stopTroca.start();
 
+    if (combinacaoIndex >= combinacoes.length) {
+      _gerarNovoBloco();
+    }
+
+    final combinacao = combinacoes[combinacaoIndex++];
+
     setState(() {
-      numEsquerda = Random().nextInt(19) + 1;
-      numDireita = Random().nextInt(19) + 1;
+      numEsquerda = combinacao['esquerda']!;
+      numDireita = combinacao['direita']!;
     });
 
     ResultadosCache.resultadosAlternado.add({
@@ -80,6 +110,15 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   }
 
   @override
+  void dispose() {
+    _focusNode.dispose();
+    _stopTroca.stop();
+    _stopTempoTotal.stop();
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: _focusNode,
@@ -87,8 +126,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
             _mudarImagens();
-          }
-          if (event.logicalKey == LogicalKeyboardKey.space) {
+          } else if (event.logicalKey == LogicalKeyboardKey.space) {
             _registrarReacao();
           }
         }

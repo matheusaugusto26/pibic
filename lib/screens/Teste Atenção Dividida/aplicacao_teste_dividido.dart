@@ -23,11 +23,16 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
 
   final int tempoLimiteSegundos = 240;
 
+  List<Map<String, int>> _combinacoes = [];
+  int _indiceAtual = 0;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInit) {
       numerosEsquerda = _sortearTresNumerosDistintos();
+      _gerarCombinacoes();
+
       _focusNode.requestFocus();
       _stopTroca.start();
       _stopTempoTotal.start();
@@ -48,19 +53,51 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     return todos.take(3).toList();
   }
 
+  void _gerarCombinacoes() {
+    final random = Random();
+    _combinacoes.clear();
+    int acertosPorBloco = 5 + random.nextInt(3); // 5 a 7 acertos
+
+    List<Map<String, int>> bloco = [];
+    List<int> imagens = List.generate(19, (i) => i + 1);
+
+    // Gerar acertos
+    for (int i = 0; i < acertosPorBloco; i++) {
+      bloco.add({'numDireita': numerosEsquerda[random.nextInt(3)]});
+    }
+
+    // Gerar erros
+    while (bloco.length < 20) {
+      int numErro;
+      do {
+        numErro = imagens[random.nextInt(19)];
+      } while (numerosEsquerda.contains(numErro));
+      bloco.add({'numDireita': numErro});
+    }
+
+    bloco.shuffle();
+    _combinacoes.addAll(bloco);
+    _indiceAtual = 0;
+  }
+
   void _mudarImagemDireita() {
     final tempoTroca = _stopTroca.elapsedMilliseconds;
     _stopTroca.reset();
     _stopTroca.start();
 
+    if (_indiceAtual >= _combinacoes.length) {
+      _gerarCombinacoes();
+    }
+
     setState(() {
-      numeroDireita = Random().nextInt(19) + 1;
+      numeroDireita = _combinacoes[_indiceAtual]['numDireita']!;
+      _indiceAtual++;
     });
 
     ResultadosCache.resultadosDividido.add({
       'tipo': 'troca',
       'tempoTroca': tempoTroca,
-      'numEsquerda': numerosEsquerda,
+      'numEsquerda': List.from(numerosEsquerda),
       'numDireita': numeroDireita,
     });
   }
@@ -72,7 +109,7 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
       'tipo': 'reacao',
       'tempoReacao': tempoReacao,
       'acerto': numerosEsquerda.contains(numeroDireita),
-      'numEsquerda': numerosEsquerda,
+      'numEsquerda': List.from(numerosEsquerda),
       'numDireita': numeroDireita,
     });
   }

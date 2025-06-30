@@ -23,11 +23,17 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
 
   final int tempoLimiteSegundos = 120;
 
+  List<List<int>> _combinacoes = [];
+  int _indexCombinacao = 0;
+  final Random _random = Random();
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInit) {
-      numEsquerda = Random().nextInt(19) + 1;
+      numEsquerda = _random.nextInt(19) + 1;
+      _gerarCombinacoes();
+
       _focusNode.requestFocus();
       _stopTroca.start();
       _stopTempoTotal.start();
@@ -42,13 +48,41 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
     }
   }
 
+  void _gerarCombinacoes() {
+    List<List<int>> novasCombinacoes = [];
+    int acertos = 5 + _random.nextInt(3); // 5 a 7 acertos
+
+    // Gera os acertos
+    for (int i = 0; i < acertos; i++) {
+      int n = _random.nextInt(19) + 1;
+      novasCombinacoes.add([numEsquerda, n]);
+    }
+
+    // Gera os erros
+    while (novasCombinacoes.length < 20) {
+      int a = numEsquerda;
+      int b = _random.nextInt(19) + 1;
+      if (a != b) {
+        novasCombinacoes.add([a, b]);
+      }
+    }
+
+    novasCombinacoes.shuffle();
+    _combinacoes.addAll(novasCombinacoes);
+  }
+
   void _mudarImagemDireita() {
     final tempoTroca = _stopTroca.elapsedMilliseconds;
     _stopTroca.reset();
     _stopTroca.start();
 
+    if (_indexCombinacao >= _combinacoes.length) {
+      _gerarCombinacoes();
+    }
+
+    final combinacao = _combinacoes[_indexCombinacao++];
     setState(() {
-      numDireita = Random().nextInt(19) + 1;
+      numDireita = combinacao[1];
     });
 
     ResultadosCache.resultadosConcentrado.add({
