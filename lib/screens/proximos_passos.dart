@@ -228,7 +228,20 @@ class ScrollableTextBox extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
-              'Lorem ipsum dolor sit amet...',
+              '''
+Avaliação Concluída
+
+Estes são os próximos passos para dar continuidade à sua Avaliação Neuropsicológica:
+
+1. Informe ao neuropsicólogo que o teste foi finalizado.
+2. Os dados coletados já foram registrados no sistema.
+3. Caso tenha dúvidas sobre o procedimento, comunique imediatamente.
+
+Lembre-se:
+Este teste faz parte de um processo mais amplo de investigação. Apenas um profissional habilitado pode interpretar os dados.
+
+Após a leitura, o neuropsicólogo prosseguirá de acordo.
+''',
               style: TextStyle(fontSize: 16),
             ),
           ),
