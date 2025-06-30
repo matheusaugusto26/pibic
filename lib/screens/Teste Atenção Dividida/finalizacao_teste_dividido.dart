@@ -21,12 +21,12 @@ Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
       .map((r) => r['tempoTroca'] as int)
       .toList();
 
-  final somaReacao = temposReacao.fold<int>(0, (soma, t) => soma + t);
+  final somaReacao = temposReacao.fold(0, (soma, t) => soma + t);
   final mediaReacao = temposReacao.isNotEmpty ? somaReacao / temposReacao.length : 0.0;
   final minReacao = temposReacao.isNotEmpty ? temposReacao.reduce((a, b) => a < b ? a : b) : 0;
   final maxReacao = temposReacao.isNotEmpty ? temposReacao.reduce((a, b) => a > b ? a : b) : 0;
 
-  final somaTroca = temposTroca.fold<int>(0, (soma, t) => soma + t);
+  final somaTroca = temposTroca.fold(0, (soma, t) => soma + t);
   final mediaTroca = temposTroca.isNotEmpty ? somaTroca / temposTroca.length : 0.0;
   final minTroca = temposTroca.isNotEmpty ? temposTroca.reduce((a, b) => a < b ? a : b) : 0;
   final maxTroca = temposTroca.isNotEmpty ? temposTroca.reduce((a, b) => a > b ? a : b) : 0;
@@ -52,13 +52,11 @@ Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
   };
 }
 
-
 class FinalizacaoTesteDividido extends StatefulWidget {
   const FinalizacaoTesteDividido({super.key});
 
   @override
-  State<FinalizacaoTesteDividido> createState() =>
-      _FinalizacaoTesteDivididoState();
+  State<FinalizacaoTesteDividido> createState() => _FinalizacaoTesteDivididoState();
 }
 
 class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
@@ -91,40 +89,24 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
     final service = FirebaseService();
 
     try {
-      // 🚫 Não re-inicialize o Firebase aqui!
-
       final sessionData = {
         ...?SessaoCache.sessionData,
         'startedAt': DateTime.now().toIso8601String(),
       };
 
-      print('📝 Salvando sessão com dados: $sessionData');
       final sessionId = await service.saveSession(sessionData);
-
-      print('💾 Salvando resultados alternado');
-      await service.saveResults(
-          sessionId, statsAlternado['resultados'], 'Alternado');
-
-      print('💾 Salvando resultados concentrado');
-      await service.saveResults(
-          sessionId, statsConcentrado['resultados'], 'Concentrado');
-
-      print('💾 Salvando resultados dividido');
-      await service.saveResults(
-          sessionId, statsDividido['resultados'], 'Dividido');
+      await service.saveResults(sessionId, statsAlternado['resultados'], 'Alternado');
+      await service.saveResults(sessionId, statsConcentrado['resultados'], 'Concentrado');
+      await service.saveResults(sessionId, statsDividido['resultados'], 'Dividido');
 
       if (!mounted) return;
 
-      print('✅ Navegando para /proximospassos');
       Navigator.pushReplacementNamed(
         context,
         '/proximospassos',
         arguments: dadosParaPdf,
       );
-    } catch (e, s) {
-      print('🔥 Erro ao salvar dados: $e');
-      print('🔥 Stacktrace: $s');
-
+    } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
