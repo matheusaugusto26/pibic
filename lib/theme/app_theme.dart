@@ -58,19 +58,18 @@ class AppTheme {
       ),
 
       cardTheme: const CardThemeData(
-  elevation: 4,
-  margin: EdgeInsets.all(12),
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(16)),
-  ),
-  color: Colors.white,
-  shadowColor: Color(0x4D9E9E9E),
-),
-
-
+        elevation: 4,
+        margin: EdgeInsets.all(12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+        color: Colors.white,
+        shadowColor: Color(0x4D9E9E9E),
+      ),
 
       inputDecorationTheme: InputDecorationTheme(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.blue),
