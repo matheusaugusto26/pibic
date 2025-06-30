@@ -2,30 +2,40 @@
 <html>
   <head>
     <base href="/" />
-
     <meta charset="UTF-8" />
     <meta name="description" content="Software de Avaliação da Atenção" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <title>aplicacao</title>
 
+    <!-- Carregador do Flutter -->
     <script src="flutter.js" defer></script>
+
+    <!-- ⚠️ Configuração necessária para FlutterLoader.load -->
+    <script>
+      window._flutter = {
+        buildConfig: {
+          baseUrl: "/", // ou "./" dependendo da estrutura de deploy
+        },
+      };
+    </script>
   </head>
   <body>
     <script>
-  window.addEventListener("load", function () {
-    if (window._flutter && window._flutter.loader) {
-      window._flutter.loader.load().then((engineInitializer) => {
-        engineInitializer.initializeEngine().then((appRunner) => {
-          appRunner.runApp();
-        });
+      window.addEventListener("load", function () {
+        if (window.flutterLoader) {
+          window.flutterLoader.load({
+            onEntrypointLoaded: function (engineInitializer) {
+              engineInitializer.initializeEngine().then(function (appRunner) {
+                appRunner.runApp();
+              });
+            },
+          });
+        } else {
+          console.error("flutterLoader is undefined");
+        }
       });
-    } else {
-      console.error("_flutter.loader is undefined");
-    }
-  });
-</script>
+    </script>
   </body>
 </html>
