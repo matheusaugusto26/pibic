@@ -47,7 +47,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     final random = Random();
     final bloco = <Map<String, int>>[];
 
-    final acertosDesejados = 5 + random.nextInt(3); // entre 5 e 7
+    final acertosDesejados = 5 + random.nextInt(3);
     int acertosGerados = 0;
 
     for (int i = 0; i < 20; i++) {
@@ -157,6 +157,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
     final appBarColor = Theme.of(context).appBarTheme.backgroundColor ??
         Theme.of(context).primaryColor;
 
@@ -180,35 +181,43 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
           title: const Text('Aplicação do Teste Alternado'),
           centerTitle: true,
         ),
-        body: Row(
+        body: Column(
           children: [
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Image.asset('assets/images/img$numEsquerda.png'),
+              flex: 6,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Image.asset('assets/images/img$numEsquerda.png'),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Image.asset('assets/images/img$numDireita.png'),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Image.asset('assets/images/img$numDireita.png'),
+            SizedBox(
+              height: screenHeight * 0.4, // ocupa 40% da tela
+              child: Container(
+                color: appBarColor,
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Image.asset(spaceImage, width: screenHeight * 0.3),
+                      Image.asset(arrowImage, width: screenHeight * 0.3),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
-        ),
-        bottomNavigationBar: BottomAppBar(
-          color: appBarColor,
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Image.asset(spaceImage, width: 96, height: 60),
-                Image.asset(arrowImage, width: 96, height: 60),
-              ],
-            ),
-          ),
         ),
       ),
     );
