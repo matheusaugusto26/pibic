@@ -27,7 +27,7 @@ class ProximosPassos extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 'Estes são os Próximos Passos para continuar a sua Avaliação Neuropsicológica.\n'
-                'Após a leitura minuciosa e qualquer dúvida sanada com seu neuropsicólogo, você pode fechar esta janela.',
+                'Após a leitura minuciosa, caso tenha qualquer dúvida, compartilhe com seu neuropsicólogo',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16),
               ),
@@ -227,10 +227,6 @@ class ScrollableTextBox extends StatelessWidget {
             padding: EdgeInsets.all(8.0),
             child: Text(
               '''
-Avaliação Concluída
-
-Estes são os próximos passos para dar continuidade à sua Avaliação Neuropsicológica:
-
 1. Informe ao neuropsicólogo que o teste foi finalizado.
 2. Os dados coletados já foram registrados no sistema.
 3. Caso tenha dúvidas sobre o procedimento, comunique imediatamente.
