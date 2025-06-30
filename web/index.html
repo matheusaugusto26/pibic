@@ -7,26 +7,23 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <title>aplicacao</title>
-
-    <!-- Carrega corretamente o flutter.js -->
     <script src="flutter.js" defer></script>
   </head>
 
   <body>
-    <!-- Inicialização correta -->
     <script>
       window.addEventListener("load", function () {
-        if (window.flutterLoader) {
-          window.flutterLoader.load({
+        window.flutterLoader
+          .load({
             onEntrypointLoaded: function (engineInitializer) {
               engineInitializer.initializeEngine().then(function (appRunner) {
                 appRunner.runApp();
               });
             },
+          })
+          .catch(function (err) {
+            console.error("Erro ao carregar o Flutter:", err);
           });
-        } else {
-          console.error("❌ flutterLoader is undefined — o flutter.js não carregou.");
-        }
       });
     </script>
   </body>
