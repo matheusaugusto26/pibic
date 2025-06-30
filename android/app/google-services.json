@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "141928664195",
+    "project_id": "pibic-matheusaugusto-2024",
+    "storage_bucket": "pibic-matheusaugusto-2024.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:141928664195:android:a48db8dd27b48ddc489fb6",
+        "android_client_info": {
+          "package_name": "com.example.aplicacao"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8MiOfHyHPobILX5ZdiPyUnmWDe0WFtc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -21,15 +21,9 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
@@ -45,6 +39,33 @@ class DefaultFirebaseOptions {
         );
     }
   }
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyD6vd1iNb3WjFnihgSxIG8SfzEsX3UR-Wc',
+    appId: '1:141928664195:web:7480cb1c61e5b328489fb6',
+    messagingSenderId: '141928664195',
+    projectId: 'pibic-matheusaugusto-2024',
+    authDomain: 'pibic-matheusaugusto-2024.firebaseapp.com',
+    storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
+    measurementId: 'G-0VREXB3DM5',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyC8MiOfHyHPobILX5ZdiPyUnmWDe0WFtc4',
+    appId: '1:141928664195:android:a48db8dd27b48ddc489fb6',
+    messagingSenderId: '141928664195',
+    projectId: 'pibic-matheusaugusto-2024',
+    storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyC16kfDBfaWZA2j1x_C3wKOzugjp327tGI',
+    appId: '1:141928664195:ios:ecc1d55f67acd76f489fb6',
+    messagingSenderId: '141928664195',
+    projectId: 'pibic-matheusaugusto-2024',
+    storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
+    iosBundleId: 'com.example.aplicacao',
+  );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyC16kfDBfaWZA2j1x_C3wKOzugjp327tGI',
@@ -64,15 +85,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
     measurementId: 'G-0VREXB3DM5',
   );
-
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyD6vd1iNb3WjFnihgSxIG8SfzEsX3UR-Wc',
-    appId: '1:141928664195:web:7480cb1c61e5b328489fb6',
-    messagingSenderId: '141928664195',
-    projectId: 'pibic-matheusaugusto-2024',
-    authDomain: 'pibic-matheusaugusto-2024.firebaseapp.com',
-    storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
-    measurementId: 'G-0VREXB3DM5',
-  );
-
 }
