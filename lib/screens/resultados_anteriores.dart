@@ -3,7 +3,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:aplicacao/services/relatorio_pdf.dart';
 import 'package:aplicacao/services/recuperar_dados_testes.dart';
-import 'package:aplicacao/services/excluir_sessao.dart';
+
+Future<void> excluirSessaoComResultados(String sessionId) async {
+  final db = FirebaseFirestore.instance;
+
+  final resultadosSnapshot = await db
+      .collection('sessions')
+      .doc(sessionId)
+      .collection('results')
+      .get();
+
+  for (final doc in resultadosSnapshot.docs) {
+    await doc.reference.delete();
+  }
+
+  await db.collection('sessions').doc(sessionId).delete();
+}
 
 class ResultadosAnteriores extends StatefulWidget {
   const ResultadosAnteriores({super.key});
@@ -14,8 +29,9 @@ class ResultadosAnteriores extends StatefulWidget {
 
 class _ResultadosAnterioresState extends State<ResultadosAnteriores> {
   String filtroBusca = '';
+  List<Map<String, dynamic>> _resultados = [];
 
-  Future<List<Map<String, dynamic>>> listarTodosResultados() async {
+  Future<void> carregarResultados() async {
     final snapshot =
         await FirebaseFirestore.instance.collection('sessions').get();
     final resultados = snapshot.docs.map((doc) {
@@ -33,11 +49,76 @@ class _ResultadosAnterioresState extends State<ResultadosAnteriores> {
     final idsVistos = <String>{};
     final unicos = resultados.where((e) => idsVistos.add(e['id'])).toList();
 
-    return unicos;
+    setState(() {
+      _resultados = unicos;
+    });
+  }
+
+  Future<void> _excluirComFeedback(String sessionId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar exclusão'),
+        content: const Text('Tem certeza que deseja excluir esta sessão?'),
+        actions: [
+          TextButton(
+            child: const Text('Cancelar'),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          ElevatedButton(
+            child: const Text('Excluir'),
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await excluirSessaoComResultados(sessionId);
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sessão excluída com sucesso.')),
+        );
+
+        setState(() {
+          _resultados.removeWhere((r) => r['id'] == sessionId);
+        });
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao excluir: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _exportarPdf(Map<String, dynamic> resultado) async {
+    final sessionId = resultado['id'];
+    final dadosTeste = await recuperarDadosCalculados(sessionId);
+    final dadosCompletos = {
+      ...resultado,
+      ...dadosTeste
+    };
+
+    if (!mounted) return;
+    await exportarRelatorioPdf(dadosCompletos, context);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    carregarResultados();
   }
 
   @override
   Widget build(BuildContext context) {
+    final filtrados = _resultados.where((r) {
+      final nome = (r['nomePaciente'] ?? '').toString().toLowerCase();
+      return nome.contains(filtroBusca.toLowerCase());
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Resultados Anteriores'),
@@ -59,102 +140,45 @@ class _ResultadosAnterioresState extends State<ResultadosAnteriores> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: listarTodosResultados(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
-                      child: Text('Nenhum resultado encontrado.'));
-                }
+            child: filtrados.isEmpty
+                ? const Center(child: Text('Nenhum resultado encontrado.'))
+                : ListView.builder(
+                    itemCount: filtrados.length,
+                    itemBuilder: (context, index) {
+                      final resultado = filtrados[index];
+                      final nome = resultado['nomePaciente'] ?? 'Sem nome';
+                      final dataRaw = resultado['dataAplicacao'] ?? '';
+                      final dataFormatada = () {
+                        try {
+                          final dt = DateTime.parse(dataRaw);
+                          return DateFormat('dd/MM/yyyy HH:mm').format(dt);
+                        } catch (_) {
+                          return 'Data inválida';
+                        }
+                      }();
 
-                final resultados = snapshot.data!;
-                final filtrados = resultados.where((r) {
-                  final nome =
-                      (r['nomePaciente'] ?? '').toString().toLowerCase();
-                  return nome.contains(filtroBusca.toLowerCase());
-                }).toList();
-
-                return ListView.builder(
-                  itemCount: filtrados.length,
-                  itemBuilder: (context, index) {
-                    final resultado = filtrados[index];
-                    final nome = resultado['nomePaciente'] ?? 'Sem nome';
-
-                    final dataRaw = resultado['dataAplicacao'] ?? '';
-                    final dataFormatada = () {
-                      try {
-                        final dt = DateTime.parse(dataRaw);
-                        return DateFormat('dd/MM/yyyy HH:mm').format(dt);
-                      } catch (_) {
-                        return 'Data inválida';
-                      }
-                    }();
-
-                    return ListTile(
-                      title: Text(nome),
-                      subtitle: Text('Data: $dataFormatada'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.picture_as_pdf),
-                            onPressed: () async {
-                              final sessionId = resultado['id'];
-                              final dadosTeste =
-                                  await recuperarDadosCalculados(sessionId);
-                              final dadosCompletos = {
-                                ...resultado,
-                                ...dadosTeste
-                              };
-                              if (!context.mounted) return;
-                              await exportarRelatorioPdf(
-                                  dadosCompletos, context);
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () async {
-                              final sessionId = resultado['id'];
-
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Confirmar exclusão'),
-                                  content: const Text(
-                                      'Tem certeza que deseja excluir esta sessão?'),
-                                  actions: [
-                                    TextButton(
-                                      child: const Text('Cancelar'),
-                                      onPressed: () =>
-                                          Navigator.pop(context, false),
-                                    ),
-                                    ElevatedButton(
-                                      child: const Text('Excluir'),
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
-                                    ),
-                                  ],
-                                ),
-                              );
-
-                              if (confirm == true) {
-                                if (!context.mounted) return;
-                                await excluirSessaoComResultados(
-                                    sessionId, context);
-                                if (context.mounted) setState(() {});
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                      return ListTile(
+                        title: Text(nome),
+                        subtitle: Text('Data: $dataFormatada'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.picture_as_pdf),
+                              onPressed: () => _exportarPdf(resultado),
+                            ),
+                            IconButton(
+                              icon:
+                                  const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _excluirComFeedback(
+                                resultado['id'],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
