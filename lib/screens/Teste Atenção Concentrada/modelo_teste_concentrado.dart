@@ -10,13 +10,17 @@ class ModeloTesteConcentrado extends StatefulWidget {
 }
 
 class _ModeloTesteConcentradoState extends State<ModeloTesteConcentrado> {
-  int numDireita = 1;
+  int numEsquerda = 1; // Será sorteado uma vez só
+  int numDireita = 1;  // Muda a cada tecla →
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _focusNode.requestFocus();
+
+    // Sorteia uma imagem fixa para o lado esquerdo
+    numEsquerda = Random().nextInt(19) + 1;
   }
 
   void _handleKey(KeyEvent event) {
@@ -48,10 +52,16 @@ class _ModeloTesteConcentradoState extends State<ModeloTesteConcentrado> {
         body: Row(
           children: [
             Expanded(
-              child: Image.asset('assets/images/square2.png'), // Imagem fixa
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Image.asset('assets/images/img$numEsquerda.png'),
+              ),
             ),
             Expanded(
-              child: Image.asset('assets/images/img$numDireita.png'),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Image.asset('assets/images/img$numDireita.png'),
+              ),
             ),
           ],
         ),
