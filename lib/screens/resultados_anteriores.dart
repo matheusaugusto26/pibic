@@ -13,11 +13,13 @@ Future<void> excluirSessaoComResultados(String sessionId) async {
       .collection('results')
       .get();
 
+  final batch = db.batch();
   for (final doc in resultadosSnapshot.docs) {
-    await doc.reference.delete();
+    batch.delete(doc.reference);
   }
+  batch.delete(db.collection('sessions').doc(sessionId));
 
-  await db.collection('sessions').doc(sessionId).delete();
+  await batch.commit();
 }
 
 class ResultadosAnteriores extends StatefulWidget {
@@ -82,9 +84,12 @@ class _ResultadosAnterioresState extends State<ResultadosAnteriores> {
           const SnackBar(content: Text('Sessão excluída com sucesso.')),
         );
 
-        setState(() {
-          _resultados.removeWhere((r) => r['id'] == sessionId);
-        });
+        final index = _resultados.indexWhere((r) => r['id'] == sessionId);
+        if (index != -1) {
+          setState(() {
+            _resultados.removeAt(index);
+          });
+        }
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -168,8 +173,7 @@ class _ResultadosAnterioresState extends State<ResultadosAnteriores> {
                               onPressed: () => _exportarPdf(resultado),
                             ),
                             IconButton(
-                              icon:
-                                  const Icon(Icons.delete, color: Colors.red),
+                              icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () => _excluirComFeedback(
                                 resultado['id'],
                               ),
