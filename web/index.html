@@ -9,26 +9,22 @@
     <title>aplicacao</title>
     <script src="flutter.js" defer></script>
   </head>
-
   <body>
     <script>
-  window.addEventListener("load", function () {
-    if (window.flutterLoader && typeof window.flutterLoader.load === "function") {
-      window.flutterLoader
-        .load({
-          onEntrypointLoaded: function (engineInitializer) {
-            engineInitializer.initializeEngine().then(function (appRunner) {
-              appRunner.runApp();
-            });
-          },
-        })
-        .catch(function (err) {
-          console.error("Erro ao carregar o Flutter:", err);
-        });
-    } else {
-      console.error("❌ flutterLoader ou método load não disponíveis.");
-    }
-  });
-</script>
+      window.addEventListener("load", function () {
+        const loader = window._flutter?.loader;
+        if (loader && typeof loader.loadEntrypoint === "function") {
+          loader.loadEntrypoint({
+            onEntrypointLoaded: function (engineInitializer) {
+              engineInitializer.initializeEngine().then(function (appRunner) {
+                appRunner.runApp();
+              });
+            },
+          });
+        } else {
+          console.error("❌ loader não encontrado em window._flutter.loader");
+        }
+      });
+    </script>
   </body>
 </html>
