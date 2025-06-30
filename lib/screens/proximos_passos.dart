@@ -150,9 +150,9 @@ class ProximosPassos extends StatelessWidget {
             ],
           ),
           pw.SizedBox(height: 6),
-          buildTempoTable('Tempo de Reação (ms)', tempoReacao),
+          buildTempoTable('Tempo de Reação (ms) - Acertos e Erros', tempoReacao),
           pw.SizedBox(height: 6),
-          buildTempoTable('Tempo de Troca (ms)', tempoTroca),
+          buildTempoTable('Tempo de Troca (ms) - Omissões', tempoTroca),
         ],
       );
     }
