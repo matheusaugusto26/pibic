@@ -24,15 +24,17 @@ class FirebaseService {
 
   /// Salva uma lista de resultados como subcoleção 'results' dentro da sessão
   /// Inclui o tipo do teste e timestamp em cada resultado
-  Future<void> saveResults(
-      String sessionId, List<Map<String, dynamic>> results, String tipoTeste) async {
+  Future<void> saveResults(String sessionId, List<Map<String, dynamic>> results,
+      String tipoTeste) async {
     if (results.isEmpty) {
-      appLog('Nenhum resultado para salvar no teste $tipoTeste da sessão $sessionId');
+      appLog(
+          'Nenhum resultado para salvar no teste $tipoTeste da sessão $sessionId');
       return;
     }
 
     final batch = _db.batch();
-    final resultsCol = _db.collection('sessions').doc(sessionId).collection('results');
+    final resultsCol =
+        _db.collection('sessions').doc(sessionId).collection('results');
 
     for (var result in results) {
       // Garantir que campos tipo List estejam serializáveis
