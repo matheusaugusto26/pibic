@@ -5,7 +5,6 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('Home.build() chamado');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Início'),
@@ -16,7 +15,7 @@ class Home extends StatelessWidget {
           children: [
             Text(
               'Software de Avaliação da Atenção',
-              style: Theme.of(context).textTheme.headlineSmall, // Pegando do AppTheme
+              style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),

@@ -35,7 +35,7 @@ class _ModeloTesteAlternadoState extends State<ModeloTesteAlternado> {
     final random = Random();
     final bloco = <Map<String, int>>[];
 
-    final acertosDesejados = 5 + random.nextInt(3); // entre 5 e 7
+    final acertosDesejados = 5 + random.nextInt(3);
     int acertosGerados = 0;
 
     for (int i = 0; i < 20; i++) {
@@ -61,7 +61,7 @@ class _ModeloTesteAlternadoState extends State<ModeloTesteAlternado> {
 
   void _mostrarProximaCombinacao() {
     if (!_respostaRegistrada) {
-      // omissão registrada internamente (sem print)
+      // Apenas modelo de teste - omissão não registrada
     }
 
     if (combinacaoIndex >= combinacoes.length) {
@@ -81,9 +81,7 @@ class _ModeloTesteAlternadoState extends State<ModeloTesteAlternado> {
 
   void _registrarReacao() {
     if (_respostaRegistrada) return;
-
-    // reação registrada internamente (sem print)
-
+    // Apenas modelo de teste - reação não registrada
     _respostaRegistrada = true;
   }
 

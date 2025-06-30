@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
-
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;

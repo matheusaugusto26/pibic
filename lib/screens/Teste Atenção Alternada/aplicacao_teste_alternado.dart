@@ -21,7 +21,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   int numEsquerda = 1;
   int numDireita = 1;
   int combinacaoIndex = 0;
-  final int tempoLimiteSegundos = 10; //150 BEFORE
+  final int tempoLimiteSegundos = 150;
 
   List<Map<String, int>> combinacoes = [];
   bool _respostaRegistrada = true;
@@ -205,7 +205,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
               ),
             ),
             SizedBox(
-              height: screenHeight * 0.4, // ocupa 40% da tela
+              height: screenHeight * 0.4,
               child: Container(
                 color: appBarColor,
                 child: Center(

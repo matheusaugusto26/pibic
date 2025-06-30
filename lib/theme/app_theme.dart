@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static ThemeData get theme {
     return ThemeData(
-      useMaterial3: true, // Ativa o Material Design 3
+      useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue.shade300, // Cor base para o esquema de cores
+        seedColor: Colors.blue.shade300,
         brightness: Brightness.light,
       ),
       scaffoldBackgroundColor: Colors.white,
-      fontFamily: 'Poppins', // Lembre de configurar no pubspec.yaml
+      fontFamily: 'Poppins',
 
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.blue.shade100,

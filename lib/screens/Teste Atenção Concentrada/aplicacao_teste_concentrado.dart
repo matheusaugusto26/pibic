@@ -22,7 +22,7 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   int numDireita = 1;
   bool _isInit = false;
 
-  final int tempoLimiteSegundos = 10; //120 BEFORE
+  final int tempoLimiteSegundos = 120;
   final List<List<int>> _combinacoes = [];
   int _indexCombinacao = 0;
   final Random _random = Random();
@@ -199,7 +199,7 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
               ),
             ),
             SizedBox(
-              height: screenHeight * 0.4, // 40% da tela
+              height: screenHeight * 0.4,
               child: Container(
                 color: appBarColor,
                 child: Center(

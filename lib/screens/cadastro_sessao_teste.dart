@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 
 enum SingingCharacter { masculino, feminino, intersexo }
 
-// 🔽 Extensão adicionada para exibir o texto com a primeira letra maiúscula
 extension SingingCharacterExtension on SingingCharacter {
   String get label {
     switch (this) {
@@ -135,6 +134,7 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               // Nome
               TextFormField(
                 controller: _nomeController,
@@ -153,7 +153,7 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
               Column(
                 children: SingingCharacter.values.map((sexo) {
                   return RadioListTile<SingingCharacter>(
-                    title: Text(sexo.label), // 👈 Aqui está o label formatado
+                    title: Text(sexo.label), 
                     value: sexo,
                     groupValue: _sexo,
                     onChanged: (value) {

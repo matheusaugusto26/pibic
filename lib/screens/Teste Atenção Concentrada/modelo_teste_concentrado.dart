@@ -58,7 +58,7 @@ class _ModeloTesteConcentradoState extends State<ModeloTesteConcentrado> {
 
   void _mostrarProximaCombinacao() {
     if (!_respostaRegistrada) {
-      // omissão ignorada
+      // Apenas modelo de teste - omissão não registrada
     }
 
     if (_indexCombinacao >= _combinacoes.length) {
@@ -77,8 +77,7 @@ class _ModeloTesteConcentradoState extends State<ModeloTesteConcentrado> {
 
   void _registrarReacao() {
     if (_respostaRegistrada) return;
-
-    // acerto ou erro ignorado internamente
+    // Apenas modelo de teste - reação não registrada
     _respostaRegistrada = true;
   }
 

@@ -66,7 +66,7 @@ class _ModeloTesteDivididoState extends State<ModeloTesteDividido> {
 
   void _mostrarProximaCombinacao() {
     if (!_respostaRegistrada) {
-      // omissão não registrada (modo silencioso)
+      // Apenas modelo de teste - omissão não registrada
     }
 
     if (_indiceAtual >= _combinacoes.length) {
@@ -85,8 +85,7 @@ class _ModeloTesteDivididoState extends State<ModeloTesteDividido> {
 
   void _registrarReacao() {
     if (_respostaRegistrada) return;
-
-    // acerto ou erro ignorado internamente
+      // Apenas modelo de teste - reação não registrada
     _respostaRegistrada = true;
   }
 
@@ -194,7 +193,7 @@ class _ModeloTesteDivididoState extends State<ModeloTesteDividido> {
         floatingActionButton: ElevatedButton(
           onPressed: () {
             Navigator.pushReplacementNamed(
-                context, '/aplicacaotestedividido'); // Altere conforme o teste
+                context, '/aplicacaotestedividido');
           },
           style: ElevatedButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.primary,
