@@ -48,6 +48,13 @@ class ProximosPassos extends StatelessWidget {
               },
               child: const Text('Exportar Relatório em PDF'),
             ),
+            ElevatedButton(
+  onPressed: () {
+    Navigator.pushNamed(context, '/resultadosAnteriores');
+  },
+  child: const Text('Ver resultados anteriores'),
+),
+,
           ],
         ),
       ),

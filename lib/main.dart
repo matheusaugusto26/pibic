@@ -15,6 +15,7 @@ import 'package:aplicacao/screens/home.dart';
 import 'package:aplicacao/screens/termos_e_condicoes.dart';
 import 'package:aplicacao/screens/cadastro_sessao_teste.dart';
 import 'package:aplicacao/screens/proximos_passos.dart';
+import 'package:aplicacao/screens/resultados_anteriores.dart';
 import 'package:aplicacao/theme/app_theme.dart';
 
 void main() async {
@@ -73,6 +74,10 @@ class MyApp extends StatelessWidget {
 
         // Próximos Passos
         '/proximospassos': (context) => const ProximosPassos(),
+
+        // Resultados Anteriores
+        '/resultadosAnteriores': (context) => const ResultadosAnteriores(),
+
       },
     );
   }
