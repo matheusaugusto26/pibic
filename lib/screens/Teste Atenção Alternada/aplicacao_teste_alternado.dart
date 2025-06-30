@@ -8,7 +8,8 @@ class AplicacaoTesteAlternado extends StatefulWidget {
   const AplicacaoTesteAlternado({super.key});
 
   @override
-  State<AplicacaoTesteAlternado> createState() => _AplicacaoTesteAlternadoState();
+  State<AplicacaoTesteAlternado> createState() =>
+      _AplicacaoTesteAlternadoState();
 }
 
 class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
@@ -54,7 +55,8 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       int esquerda = random.nextInt(19) + 1;
       int direita;
 
-      if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
+      if (acertosGerados < acertosDesejados &&
+          (20 - i) > (acertosDesejados - acertosGerados)) {
         direita = esquerda;
         acertosGerados++;
       } else {
@@ -75,7 +77,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     _stopTroca.reset();
     _stopTroca.start();
 
-    if (!_respostaRegistrada) {
+    if (!_respostaRegistrada && numEsquerda == numDireita) {
       ResultadosCache.resultadosAlternado.add({
         'tipo': 'reacao',
         'tipoResposta': 'omissao',

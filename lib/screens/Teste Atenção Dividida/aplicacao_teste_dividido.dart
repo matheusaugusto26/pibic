@@ -91,7 +91,7 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     _stopTroca.reset();
     _stopTroca.start();
 
-    if (!_respostaRegistrada) {
+    if (!_respostaRegistrada && numerosEsquerda.contains(numeroDireita)) {
       ResultadosCache.resultadosDividido.add({
         'tipo': 'reacao',
         'tipoResposta': 'omissao',

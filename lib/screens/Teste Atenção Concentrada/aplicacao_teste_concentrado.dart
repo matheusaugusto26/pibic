@@ -8,7 +8,8 @@ class AplicacaoTesteConcentrado extends StatefulWidget {
   const AplicacaoTesteConcentrado({super.key});
 
   @override
-  State<AplicacaoTesteConcentrado> createState() => _AplicacaoTesteConcentradoState();
+  State<AplicacaoTesteConcentrado> createState() =>
+      _AplicacaoTesteConcentradoState();
 }
 
 class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
@@ -59,7 +60,8 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
 
     for (int i = 0; i < 20; i++) {
       int direita;
-      if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
+      if (acertosGerados < acertosDesejados &&
+          (20 - i) > (acertosDesejados - acertosGerados)) {
         direita = numEsquerda;
         acertosGerados++;
       } else {
@@ -79,7 +81,7 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
     _stopTroca.reset();
     _stopTroca.start();
 
-    if (!_respostaRegistrada) {
+    if (!_respostaRegistrada && numEsquerda == numDireita) {
       ResultadosCache.resultadosConcentrado.add({
         'tipo': 'reacao',
         'tipoResposta': 'omissao',
@@ -189,8 +191,10 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
               flex: 6,
               child: Row(
                 children: [
-                  Expanded(child: Image.asset('assets/images/img$numEsquerda.png')),
-                  Expanded(child: Image.asset('assets/images/img$numDireita.png')),
+                  Expanded(
+                      child: Image.asset('assets/images/img$numEsquerda.png')),
+                  Expanded(
+                      child: Image.asset('assets/images/img$numDireita.png')),
                 ],
               ),
             ),
