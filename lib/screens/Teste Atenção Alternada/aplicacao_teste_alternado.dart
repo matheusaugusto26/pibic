@@ -72,9 +72,9 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     _stopTroca.reset();
     _stopTroca.start();
 
-    // Se o usuário não respondeu, registramos como omissão
     if (!_respostaRegistrada) {
       ResultadosCache.resultadosAlternado.add({
+        'tipo': 'troca',
         'tipoResposta': 'omissao',
         'tempoTroca': tempoTroca,
         'numEsquerda': numEsquerda,
@@ -103,6 +103,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     final acerto = numEsquerda == numDireita;
 
     ResultadosCache.resultadosAlternado.add({
+      'tipo': 'reacao',
       'tipoResposta': acerto ? 'acerto' : 'erro',
       'tempoReacao': tempoReacao,
       'numEsquerda': numEsquerda,

@@ -65,7 +65,8 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     for (int i = 0; i < 20; i++) {
       int numDir;
 
-      if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
+      if (acertosGerados < acertosDesejados &&
+          (20 - i) > (acertosDesejados - acertosGerados)) {
         numDir = numerosEsquerda[_random.nextInt(3)];
         acertosGerados++;
       } else {
@@ -89,6 +90,7 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
 
     if (!_respostaRegistrada) {
       ResultadosCache.resultadosDividido.add({
+        'tipo': 'troca',
         'tipoResposta': 'omissao',
         'tempoTroca': tempoTroca,
         'numEsquerda': List.from(numerosEsquerda),
@@ -115,6 +117,7 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     final acerto = numerosEsquerda.contains(numeroDireita);
 
     ResultadosCache.resultadosDividido.add({
+      'tipo': 'reacao',
       'tipoResposta': acerto ? 'acerto' : 'erro',
       'tempoReacao': tempoReacao,
       'numEsquerda': List.from(numerosEsquerda),

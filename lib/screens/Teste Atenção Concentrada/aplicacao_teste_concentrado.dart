@@ -8,10 +8,12 @@ class AplicacaoTesteConcentrado extends StatefulWidget {
   const AplicacaoTesteConcentrado({super.key});
 
   @override
-  State<AplicacaoTesteConcentrado> createState() => _AplicacaoTesteConcentradoState();
+  State<AplicacaoTesteConcentrado> createState() =>
+      _AplicacaoTesteConcentradoState();
 }
 
-class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
+class _AplicacaoTesteConcentradoState
+    extends State<AplicacaoTesteConcentrado> {
   final FocusNode _focusNode = FocusNode();
   final Stopwatch _stopTroca = Stopwatch();
   final Stopwatch _stopTempoTotal = Stopwatch();
@@ -57,7 +59,8 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
 
     for (int i = 0; i < 20; i++) {
       int direita;
-      if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
+      if (acertosGerados < acertosDesejados &&
+          (20 - i) > (acertosDesejados - acertosGerados)) {
         direita = numEsquerda;
         acertosGerados++;
       } else {
@@ -80,6 +83,7 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
 
     if (!_respostaRegistrada) {
       ResultadosCache.resultadosConcentrado.add({
+        'tipo': 'troca',
         'tipoResposta': 'omissao',
         'tempoTroca': tempoTroca,
         'numEsquerda': numEsquerda,
@@ -106,6 +110,7 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
     final acerto = numEsquerda == numDireita;
 
     ResultadosCache.resultadosConcentrado.add({
+      'tipo': 'reacao',
       'tipoResposta': acerto ? 'acerto' : 'erro',
       'tempoReacao': tempoReacao,
       'numEsquerda': numEsquerda,
