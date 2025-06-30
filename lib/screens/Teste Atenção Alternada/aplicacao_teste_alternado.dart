@@ -25,9 +25,6 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   List<Map<String, int>> combinacoes = [];
   bool _respostaRegistrada = true;
 
-  bool _espacoPressionado = false;
-  bool _setaPressionada = false;
-
   @override
   void initState() {
     super.initState();
@@ -75,6 +72,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
     _stopTroca.reset();
     _stopTroca.start();
 
+    // Se o usuário não respondeu, registramos como omissão
     if (!_respostaRegistrada) {
       ResultadosCache.resultadosAlternado.add({
         'tipo': 'troca',
@@ -137,17 +135,9 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       onKeyEvent: (KeyEvent event) {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-            setState(() => _setaPressionada = true);
             _mudarImagens();
-            Future.delayed(const Duration(milliseconds: 200), () {
-              if (mounted) setState(() => _setaPressionada = false);
-            });
           } else if (event.logicalKey == LogicalKeyboardKey.space) {
-            setState(() => _espacoPressionado = true);
             _registrarReacao();
-            Future.delayed(const Duration(milliseconds: 200), () {
-              if (mounted) setState(() => _espacoPressionado = false);
-            });
           }
         }
       },
@@ -173,39 +163,6 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
               ),
             ),
           ],
-        ),
-        bottomNavigationBar: SizedBox(
-          height: 80,
-          child: BottomAppBar(
-            color: Colors.grey[100],
-            elevation: 10,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(
-                    height: 50,
-                    child: Image.asset(
-                      _espacoPressionado
-                          ? 'assets/images/spacebar_pressed.png'
-                          : 'assets/images/spacebar_normal.png',
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 50,
-                    child: Image.asset(
-                      _setaPressionada
-                          ? 'assets/images/arrow_right_pressed.png'
-                          : 'assets/images/arrow_right_normal.png',
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
     );
