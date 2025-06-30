@@ -1,28 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!-- Se você servir seu app em um sub‐diretório, ajuste este base href -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <meta name="description" content="A new Flutter project.">
 
-  <!-- Meta para PWA -->
+  <!-- PWA -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="aplicacao">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="manifest" href="manifest.json">
 
   <title>aplicacao</title>
-  <link rel="manifest" href="manifest.json">
+
+  <!-- 🔥 Firebase SDKs obrigatórios para Web -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
+
+  <!-- 🔧 Inicialização do Firebase com suas credenciais -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD6vd1iNb3WjFnihgSxIG8SfzEsX3UR-Wc",
+      authDomain: "pibic-matheusaugusto-2024.firebaseapp.com",
+      projectId: "pibic-matheusaugusto-2024",
+      storageBucket: "pibic-matheusaugusto-2024.firebasestorage.app",
+      messagingSenderId: "141928664195",
+      appId: "1:141928664195:web:7480cb1c61e5b328489fb6",
+      measurementId: "G-0VREXB3DM5"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body>
-  <!-- Script principal do Flutter Web em modo HTML renderer -->
   <script src="flutter_bootstrap.js" defer></script>
   <script>
     window.addEventListener('DOMContentLoaded', function () {
