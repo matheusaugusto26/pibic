@@ -61,7 +61,6 @@ class ProximosPassos extends StatelessWidget {
     final pdf = pw.Document();
 
     pw.Widget buildTempoTable(String titulo, Map<String, dynamic> tempo) {
-      final soma = tempo['soma'] ?? 0;
       final media = (tempo['media'] ?? 0).toDouble();
       final minimo = tempo['minimo'] ?? 0;
       final maximo = tempo['maximo'] ?? 0;
@@ -75,13 +74,11 @@ class ProximosPassos extends StatelessWidget {
             pw.TableRow(
                 decoration: const pw.BoxDecoration(color: PdfColors.grey200),
                 children: [
-                  pw.Text('Soma', textAlign: pw.TextAlign.center),
                   pw.Text('Média', textAlign: pw.TextAlign.center),
                   pw.Text('Mínimo', textAlign: pw.TextAlign.center),
                   pw.Text('Máximo', textAlign: pw.TextAlign.center),
                 ]),
             pw.TableRow(children: [
-              pw.Text('$soma', textAlign: pw.TextAlign.center),
               pw.Text('${media.toStringAsFixed(0)}',
                   textAlign: pw.TextAlign.center),
               pw.Text('$minimo', textAlign: pw.TextAlign.center),
