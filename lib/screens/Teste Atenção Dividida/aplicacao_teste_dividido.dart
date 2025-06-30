@@ -203,24 +203,21 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: numerosEsquerda
-                            .map((n) => Image.asset(
-                                  'assets/images/img$n.png',
-                                  width: 80,
-                                  height: 80,
-                                ))
-                            .toList(),
-                      ),
+                    child: Row(
+                      children: numerosEsquerda
+                          .map((n) => Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Image.asset('assets/images/img$n.png'),
+                                ),
+                              ))
+                          .toList(),
                     ),
                   ),
                   Expanded(
                     flex: 1,
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(12.0),
                       child: Image.asset('assets/images/img$numeroDireita.png'),
                     ),
                   ),
