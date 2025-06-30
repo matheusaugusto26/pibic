@@ -21,7 +21,7 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   int numDireita = 1;
   bool _isInit = false;
 
-  final int tempoLimiteSegundos = 10; //THIS WAS 120
+  final int tempoLimiteSegundos = 10; // ajuste conforme necessário
 
   final List<List<int>> _combinacoes = [];
   int _indexCombinacao = 0;
@@ -78,16 +78,22 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
     _stopTroca.reset();
     _stopTroca.start();
 
-    // Se o usuário não respondeu, registramos como omissão
+    // Se o usuário não respondeu, registrar como omissão (tipo: reacao)
     if (!_respostaRegistrada) {
       ResultadosCache.resultadosConcentrado.add({
-        'tipo': 'troca',
+        'tipo': 'reacao',
         'tipoResposta': 'omissao',
-        'tempoTroca': tempoTroca,
+        'tempoReacao': null,
         'numEsquerda': numEsquerda,
         'numDireita': numDireita,
       });
     }
+
+    // Registrar a troca normalmente
+    ResultadosCache.resultadosConcentrado.add({
+      'tipo': 'troca',
+      'tempoTroca': tempoTroca,
+    });
 
     if (_indexCombinacao >= _combinacoes.length) {
       _gerarNovoBloco();

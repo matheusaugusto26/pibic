@@ -21,7 +21,7 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   int numeroDireita = 1;
   bool _isInit = false;
 
-  final int tempoLimiteSegundos = 10; //THIS WAS 240
+  final int tempoLimiteSegundos = 10; // ajuste conforme necessário
 
   final List<Map<String, int>> _combinacoes = [];
   int _indiceAtual = 0;
@@ -88,15 +88,22 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     _stopTroca.reset();
     _stopTroca.start();
 
+    // Se o usuário não respondeu, registrar como omissão (tipo: reacao)
     if (!_respostaRegistrada) {
       ResultadosCache.resultadosDividido.add({
-        'tipo': 'troca',
+        'tipo': 'reacao',
         'tipoResposta': 'omissao',
-        'tempoTroca': tempoTroca,
+        'tempoReacao': null,
         'numEsquerda': List.from(numerosEsquerda),
         'numDireita': numeroDireita,
       });
     }
+
+    // Registrar a troca normalmente
+    ResultadosCache.resultadosDividido.add({
+      'tipo': 'troca',
+      'tempoTroca': tempoTroca,
+    });
 
     if (_indiceAtual >= _combinacoes.length) {
       _gerarNovoBloco();

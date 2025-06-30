@@ -20,7 +20,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   int numEsquerda = 1;
   int numDireita = 1;
   int combinacaoIndex = 0;
-  final int tempoLimiteSegundos = 10; //THIS WAS 150
+  final int tempoLimiteSegundos = 10; // tempo para teste, pode ajustar
 
   List<Map<String, int>> combinacoes = [];
   bool _respostaRegistrada = true;
@@ -74,14 +74,21 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
 
     // Se o usuário não respondeu, registramos como omissão
     if (!_respostaRegistrada) {
+      // 1. Registrar a omissão como reação
       ResultadosCache.resultadosAlternado.add({
-        'tipo': 'troca',
+        'tipo': 'reacao',
         'tipoResposta': 'omissao',
-        'tempoTroca': tempoTroca,
+        'tempoReacao': null,
         'numEsquerda': numEsquerda,
         'numDireita': numDireita,
       });
     }
+
+    // 2. Registrar a troca normalmente
+    ResultadosCache.resultadosAlternado.add({
+      'tipo': 'troca',
+      'tempoTroca': tempoTroca,
+    });
 
     if (combinacaoIndex >= combinacoes.length) {
       _gerarNovoBloco();
