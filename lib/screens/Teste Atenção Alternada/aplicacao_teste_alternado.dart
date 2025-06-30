@@ -25,6 +25,9 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   List<Map<String, int>> combinacoes = [];
   bool _respostaRegistrada = true;
 
+  bool _espacoPressionado = false;
+  bool _setaPressionada = false;
+
   @override
   void initState() {
     super.initState();
@@ -135,9 +138,17 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       onKeyEvent: (KeyEvent event) {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+            setState(() => _setaPressionada = true);
             _mudarImagens();
+            Future.delayed(const Duration(milliseconds: 200), () {
+              if (mounted) setState(() => _setaPressionada = false);
+            });
           } else if (event.logicalKey == LogicalKeyboardKey.space) {
+            setState(() => _espacoPressionado = true);
             _registrarReacao();
+            Future.delayed(const Duration(milliseconds: 200), () {
+              if (mounted) setState(() => _espacoPressionado = false);
+            });
           }
         }
       },
@@ -163,6 +174,30 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
               ),
             ),
           ],
+        ),
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.grey[100],
+          elevation: 10,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Image.asset(
+                  _espacoPressionado
+                      ? 'assets/images/spacebar_pressed.png'
+                      : 'assets/images/spacebar_normal.png',
+                  height: 40,
+                ),
+                Image.asset(
+                  _setaPressionada
+                      ? 'assets/images/arrow_right_pressed.png'
+                      : 'assets/images/arrow_right_normal.png',
+                  height: 40,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
