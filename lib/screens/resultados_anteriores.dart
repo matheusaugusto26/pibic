@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:aplicacao/services/relatorio_pdf.dart';
+import 'package:aplicacao/services/recuperar_dados_testes.dart';
 
 class ResultadosAnteriores extends StatefulWidget {
   const ResultadosAnteriores({super.key});
@@ -77,7 +78,17 @@ class _ResultadosAnterioresState extends State<ResultadosAnteriores> {
                       trailing: IconButton(
                         icon: const Icon(Icons.picture_as_pdf),
                         onPressed: () {
-                          exportarRelatorioPdf(resultado, context);
+                          () async {
+                            final sessionId = resultado['id'];
+                            final dadosTeste =
+                                await recuperarDadosCalculados(sessionId);
+                            final dadosCompletos = {
+                              ...resultado,
+                              ...dadosTeste
+                            };
+                            if (!context.mounted) return;
+                            await exportarRelatorioPdf(dadosCompletos, context);
+                          };
                         },
                       ),
                     );
