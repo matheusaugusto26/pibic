@@ -25,7 +25,6 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
   List<Map<String, int>> combinacoes = [];
   bool _respostaRegistrada = true;
 
-  // Estados dos ícones de tecla
   String spaceImage = 'assets/images/spacebar_normal.png';
   String arrowImage = 'assets/images/arrow_right_normal.png';
 
@@ -145,8 +144,7 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
       }
     });
 
-    // Volta imediatamente pro normal após rebuild
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    Future.delayed(const Duration(milliseconds: 200), () {
       setState(() {
         if (tecla == 'space') {
           spaceImage = 'assets/images/spacebar_normal.png';
@@ -159,6 +157,9 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
 
   @override
   Widget build(BuildContext context) {
+    final appBarColor = Theme.of(context).appBarTheme.backgroundColor ??
+        Theme.of(context).primaryColor;
+
     return KeyboardListener(
       focusNode: _focusNode,
       onKeyEvent: (KeyEvent event) {
@@ -196,14 +197,15 @@ class _AplicacaoTesteAlternadoState extends State<AplicacaoTesteAlternado> {
           ],
         ),
         bottomNavigationBar: BottomAppBar(
-          color: Colors.grey[900],
+          color: appBarColor,
+          elevation: 4,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Image.asset(spaceImage, width: 64, height: 40),
-                Image.asset(arrowImage, width: 64, height: 40),
+                Image.asset(spaceImage, width: 96, height: 60),
+                Image.asset(arrowImage, width: 96, height: 60),
               ],
             ),
           ),
