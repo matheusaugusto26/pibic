@@ -60,8 +60,6 @@ flutter:
     - assets/images/arrow_right_pressed.png
 
   fonts:
-    - family: Poppins
+    - family: Lato
       fonts:
-        - asset: assets/fonts/Poppins-Regular.ttf
-        - asset: assets/fonts/Poppins-Bold.ttf
-          weight: 700
+        - asset: assets/fonts/Lato-Light.ttf
