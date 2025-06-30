@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:aplicacao/services/relatorio_pdf.dart';
 import 'package:aplicacao/services/recuperar_dados_testes.dart';
 import 'package:aplicacao/services/excluir_sessao.dart';
@@ -17,11 +18,22 @@ class _ResultadosAnterioresState extends State<ResultadosAnteriores> {
   Future<List<Map<String, dynamic>>> listarTodosResultados() async {
     final snapshot =
         await FirebaseFirestore.instance.collection('sessions').get();
-    return snapshot.docs.map((doc) {
+    final resultados = snapshot.docs.map((doc) {
       final data = doc.data();
       data['id'] = doc.id;
       return data;
     }).toList();
+
+    resultados.sort((a, b) {
+      final dataA = DateTime.tryParse(a['dataAplicacao'] ?? '') ?? DateTime(0);
+      final dataB = DateTime.tryParse(b['dataAplicacao'] ?? '') ?? DateTime(0);
+      return dataB.compareTo(dataA);
+    });
+
+    final idsVistos = <String>{};
+    final unicos = resultados.where((e) => idsVistos.add(e['id'])).toList();
+
+    return unicos;
   }
 
   @override
@@ -70,19 +82,20 @@ class _ResultadosAnterioresState extends State<ResultadosAnteriores> {
                   itemBuilder: (context, index) {
                     final resultado = filtrados[index];
                     final nome = resultado['nomePaciente'] ?? 'Sem nome';
-                    final dataRaw = resultado['dataAplicacao'];
-                    String data;
-                    try {
-                      final dateTime = DateTime.parse(dataRaw);
-                      data =
-                          '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year} às ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-                    } catch (_) {
-                      data = 'Desconhecida';
-                    }
+
+                    final dataRaw = resultado['dataAplicacao'] ?? '';
+                    final dataFormatada = () {
+                      try {
+                        final dt = DateTime.parse(dataRaw);
+                        return DateFormat('dd/MM/yyyy HH:mm').format(dt);
+                      } catch (_) {
+                        return 'Data inválida';
+                      }
+                    }();
 
                     return ListTile(
                       title: Text(nome),
-                      subtitle: Text('Data: $data'),
+                      subtitle: Text('Data: $dataFormatada'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
