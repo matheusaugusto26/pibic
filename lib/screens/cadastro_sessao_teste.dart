@@ -260,11 +260,6 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
                       _salvarSessao();
                       Navigator.pushReplacementNamed(
                           context, '/modelotestealternado');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Dados da Sessão Salvos com Sucesso!'),
-                        ),
-                      );
                     }
                   },
                   child: const Padding(
