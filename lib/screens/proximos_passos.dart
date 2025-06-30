@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:aplicacao/services/relatorio_pdf.dart';
 
 class ProximosPassos extends StatelessWidget {
   const ProximosPassos({super.key});
@@ -44,7 +45,7 @@ class ProximosPassos extends StatelessWidget {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () async {
-                await _exportarPdf(dados, context);
+                await exportarRelatorioPdf(dados, context);
               },
               child: const Text('Exportar Relatório em PDF'),
             ),
@@ -54,14 +55,13 @@ class ProximosPassos extends StatelessWidget {
   },
   child: const Text('Ver resultados anteriores'),
 ),
-,
           ],
         ),
       ),
     );
   }
 
-  Future<void> _exportarPdf(
+  Future<void> exportarRelatorioPdf(
       Map<String, dynamic> dados, BuildContext context) async {
     final pdf = pw.Document();
 
