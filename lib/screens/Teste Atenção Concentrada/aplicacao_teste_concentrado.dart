@@ -8,7 +8,8 @@ class AplicacaoTesteConcentrado extends StatefulWidget {
   const AplicacaoTesteConcentrado({super.key});
 
   @override
-  State<AplicacaoTesteConcentrado> createState() => _AplicacaoTesteConcentradoState();
+  State<AplicacaoTesteConcentrado> createState() =>
+      _AplicacaoTesteConcentradoState();
 }
 
 class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
@@ -21,7 +22,7 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
   int numDireita = 1;
   bool _isInit = false;
 
-  final int tempoLimiteSegundos = 10; // ajuste conforme necessário
+  final int tempoLimiteSegundos = 10;
 
   final List<List<int>> _combinacoes = [];
   int _indexCombinacao = 0;
@@ -57,7 +58,8 @@ class _AplicacaoTesteConcentradoState extends State<AplicacaoTesteConcentrado> {
 
     for (int i = 0; i < 20; i++) {
       int direita;
-      if (acertosGerados < acertosDesejados && (20 - i) > (acertosDesejados - acertosGerados)) {
+      if (acertosGerados < acertosDesejados &&
+          (20 - i) > (acertosDesejados - acertosGerados)) {
         direita = numEsquerda;
         acertosGerados++;
       } else {
