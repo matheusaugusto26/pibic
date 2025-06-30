@@ -29,6 +29,9 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
 
   bool _respostaRegistrada = true;
 
+  String spaceImage = 'assets/images/spacebar_normal.png';
+  String arrowImage = 'assets/images/arrow_right_normal.png';
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -88,7 +91,6 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     _stopTroca.reset();
     _stopTroca.start();
 
-    // Se o usuário não respondeu, registrar como omissão (tipo: reacao)
     if (!_respostaRegistrada) {
       ResultadosCache.resultadosDividido.add({
         'tipo': 'reacao',
@@ -99,7 +101,6 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
       });
     }
 
-    // Registrar a troca normalmente
     ResultadosCache.resultadosDividido.add({
       'tipo': 'troca',
       'tempoTroca': tempoTroca,
@@ -139,6 +140,26 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
     Navigator.pushReplacementNamed(context, '/finalizacaotestedividido');
   }
 
+  void _pressionarTecla(String tecla) {
+    setState(() {
+      if (tecla == 'space') {
+        spaceImage = 'assets/images/spacebar_pressed.png';
+      } else if (tecla == 'arrow') {
+        arrowImage = 'assets/images/arrow_right_pressed.png';
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 200), () {
+      setState(() {
+        if (tecla == 'space') {
+          spaceImage = 'assets/images/spacebar_normal.png';
+        } else if (tecla == 'arrow') {
+          arrowImage = 'assets/images/arrow_right_normal.png';
+        }
+      });
+    });
+  }
+
   @override
   void dispose() {
     _focusNode.dispose();
@@ -150,14 +171,20 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final appBarColor = Theme.of(context).appBarTheme.backgroundColor ??
+        Theme.of(context).primaryColor;
+
     return KeyboardListener(
       focusNode: _focusNode,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
             _mudarImagemDireita();
+            _pressionarTecla('arrow');
           } else if (event.logicalKey == LogicalKeyboardKey.space) {
             _registrarReacao();
+            _pressionarTecla('space');
           }
         }
       },
@@ -168,21 +195,52 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
           title: const Text('Aplicação do Teste Dividido'),
           centerTitle: true,
         ),
-        body: Row(
+        body: Column(
           children: [
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: numerosEsquerda
-                    .map((n) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Image.asset('assets/images/img$n.png'),
-                        ))
-                    .toList(),
+              flex: 6,
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: numerosEsquerda
+                            .map((n) => Image.asset(
+                                  'assets/images/img$n.png',
+                                  width: 80,
+                                  height: 80,
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Image.asset('assets/images/img$numeroDireita.png'),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Expanded(
-              child: Image.asset('assets/images/img$numeroDireita.png'),
+            SizedBox(
+              height: screenHeight * 0.4,
+              child: Container(
+                color: appBarColor,
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Image.asset(spaceImage, width: screenHeight * 0.3),
+                      Image.asset(arrowImage, width: screenHeight * 0.3),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
