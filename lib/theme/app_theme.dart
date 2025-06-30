@@ -18,7 +18,6 @@ class AppTheme {
         titleTextStyle: const TextStyle(
           color: Colors.black87,
           fontSize: 22,
-          fontWeight: FontWeight.w600,
         ),
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
