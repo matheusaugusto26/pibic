@@ -3,7 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:aplicacao/services/sessao_cache.dart';
 import 'package:http/http.dart' as http;
 
-enum SingingCharacter { masculino, feminino, intersexo, outro }
+enum SingingCharacter { masculino, feminino, intersexo }
+
+// 🔽 Extensão adicionada para exibir o texto com a primeira letra maiúscula
+extension SingingCharacterExtension on SingingCharacter {
+  String get label {
+    switch (this) {
+      case SingingCharacter.masculino:
+        return 'Masculino';
+      case SingingCharacter.feminino:
+        return 'Feminino';
+      case SingingCharacter.intersexo:
+        return 'Intersexo';
+    }
+  }
+}
 
 class CadastroSessaoTeste extends StatefulWidget {
   const CadastroSessaoTeste({super.key});
@@ -139,7 +153,7 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
               Column(
                 children: SingingCharacter.values.map((sexo) {
                   return RadioListTile<SingingCharacter>(
-                    title: Text(sexo.name),
+                    title: Text(sexo.label), // 👈 Aqui está o label formatado
                     value: sexo,
                     groupValue: _sexo,
                     onChanged: (value) {
