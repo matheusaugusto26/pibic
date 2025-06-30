@@ -146,15 +146,13 @@ class _ModeloTesteConcentradoState extends State<ModeloTesteConcentrado> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child:
-                          Image.asset('assets/images/img$numEsquerda.png'),
+                      child: Image.asset('assets/images/img$numEsquerda.png'),
                     ),
                   ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child:
-                          Image.asset('assets/images/img$numDireita.png'),
+                      child: Image.asset('assets/images/img$numDireita.png'),
                     ),
                   ),
                 ],
@@ -176,6 +174,20 @@ class _ModeloTesteConcentradoState extends State<ModeloTesteConcentrado> {
               ),
             ),
           ],
+        ),
+        floatingActionButton: ElevatedButton(
+          onPressed: () {
+            Navigator.pushReplacementNamed(
+                context, '/aplicacaotesteconcentrado');
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: Colors.white,
+          ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text('Vamos para o Teste!'),
+          ),
         ),
       ),
     );

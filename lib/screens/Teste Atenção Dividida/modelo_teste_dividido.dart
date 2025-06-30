@@ -191,6 +191,20 @@ class _ModeloTesteDivididoState extends State<ModeloTesteDividido> {
             ),
           ],
         ),
+        floatingActionButton: ElevatedButton(
+          onPressed: () {
+            Navigator.pushReplacementNamed(
+                context, '/aplicacaotestedividido'); // Altere conforme o teste
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: Colors.white,
+          ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text('Vamos para o Teste!'),
+          ),
+        ),
       ),
     );
   }

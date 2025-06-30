@@ -151,15 +151,13 @@ class _ModeloTesteAlternadoState extends State<ModeloTesteAlternado> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child:
-                          Image.asset('assets/images/img$numEsquerda.png'),
+                      child: Image.asset('assets/images/img$numEsquerda.png'),
                     ),
                   ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child:
-                          Image.asset('assets/images/img$numDireita.png'),
+                      child: Image.asset('assets/images/img$numDireita.png'),
                     ),
                   ),
                 ],
@@ -181,6 +179,20 @@ class _ModeloTesteAlternadoState extends State<ModeloTesteAlternado> {
               ),
             ),
           ],
+        ),
+        floatingActionButton: ElevatedButton(
+          onPressed: () {
+            Navigator.pushReplacementNamed(
+                context, '/aplicacaotestealternado');
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: Colors.white,
+          ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text('Vamos para o Teste!'),
+          ),
         ),
       ),
     );
