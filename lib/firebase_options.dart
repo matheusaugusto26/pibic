@@ -46,7 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '141928664195',
     projectId: 'pibic-matheusaugusto-2024',
     authDomain: 'pibic-matheusaugusto-2024.firebaseapp.com',
-    storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
+    storageBucket: 'pibic-matheusaugusto-2024.appspot.com',
     measurementId: 'G-0VREXB3DM5',
   );
 
@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
     appId: '1:141928664195:android:a48db8dd27b48ddc489fb6',
     messagingSenderId: '141928664195',
     projectId: 'pibic-matheusaugusto-2024',
-    storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
+    storageBucket: 'pibic-matheusaugusto-2024.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
     appId: '1:141928664195:ios:ecc1d55f67acd76f489fb6',
     messagingSenderId: '141928664195',
     projectId: 'pibic-matheusaugusto-2024',
-    storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
+    storageBucket: 'pibic-matheusaugusto-2024.appspot.com',
     iosBundleId: 'com.example.aplicacao',
   );
 
@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
     appId: '1:141928664195:ios:ecc1d55f67acd76f489fb6',
     messagingSenderId: '141928664195',
     projectId: 'pibic-matheusaugusto-2024',
-    storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
+    storageBucket: 'pibic-matheusaugusto-2024.appspot.com',
     iosBundleId: 'com.example.aplicacao',
   );
 
@@ -82,7 +82,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '141928664195',
     projectId: 'pibic-matheusaugusto-2024',
     authDomain: 'pibic-matheusaugusto-2024.firebaseapp.com',
-    storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
+    storageBucket: 'pibic-matheusaugusto-2024.appspot.com',
     measurementId: 'G-0VREXB3DM5',
   );
 }
