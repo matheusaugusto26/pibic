@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:aplicacao/services/sessao_cache.dart';
 import 'package:http/http.dart' as http;
 
@@ -135,7 +134,6 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               // Nome
               TextFormField(
                 controller: _nomeController,
@@ -209,34 +207,67 @@ class _CadastroSessaoTesteState extends State<CadastroSessaoTeste> {
               const SizedBox(height: 20),
 
               // Estado com busca
-              DropdownSearch<String>(
-                mode: Mode.BOTTOM_SHEET,
-                showSearchBox: true,
-                items: _estados.map<String>((estado) => estado['sigla'] as String).toList(),
-                label: "Estado *",
-                selectedItem: _estadoSelecionado,
-                onChanged: (value) {
-                  setState(() {
-                    _estadoSelecionado = value;
-                    _cidadeSelecionada = null;
-                  });
-                  if (value != null) _carregarCidades(value);
+              Autocomplete<String>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text.isEmpty) {
+                    return const Iterable<String>.empty();
+                  }
+                  return _estados.map((e) => e['sigla'] as String).where(
+                      (sigla) => sigla
+                          .toLowerCase()
+                          .contains(textEditingValue.text.toLowerCase()));
                 },
-                validator: (value) => value == null ? 'Selecione um estado' : null,
+                fieldViewBuilder:
+                    (context, controller, focusNode, onFieldSubmitted) {
+                  return TextFormField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    decoration: const InputDecoration(
+                      labelText: 'Estado *',
+                      icon: Icon(Icons.map),
+                    ),
+                    validator: (value) => (value == null || value.isEmpty)
+                        ? 'Selecione um estado'
+                        : null,
+                  );
+                },
+                onSelected: (String selection) {
+                  setState(() {
+                    _estadoSelecionado = selection;
+                    _cidadeSelecionada = null;
+                    _carregarCidades(selection);
+                  });
+                },
               ),
-              const SizedBox(height: 20),
 
               // Cidade com busca
-              DropdownSearch<String>(
-                mode: Mode.BOTTOM_SHEET,
-                showSearchBox: true,
-                items: _cidades,
-                label: "Cidade *",
-                selectedItem: _cidadeSelecionada,
-                onChanged: (value) => setState(() => _cidadeSelecionada = value),
-                validator: (value) => value == null ? 'Selecione uma cidade' : null,
+              Autocomplete<String>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text.isEmpty) {
+                    return const Iterable<String>.empty();
+                  }
+                  return _cidades.where((cidade) => cidade
+                      .toLowerCase()
+                      .contains(textEditingValue.text.toLowerCase()));
+                },
+                fieldViewBuilder:
+                    (context, controller, focusNode, onFieldSubmitted) {
+                  return TextFormField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    decoration: const InputDecoration(
+                      labelText: 'Cidade *',
+                      icon: Icon(Icons.location_city),
+                    ),
+                    validator: (value) => (value == null || value.isEmpty)
+                        ? 'Selecione uma cidade'
+                        : null,
+                  );
+                },
+                onSelected: (String selection) {
+                  setState(() => _cidadeSelecionada = selection);
+                },
               ),
-              const SizedBox(height: 30),
 
               Center(
                 child: ElevatedButton(
