@@ -17,25 +17,9 @@
     <link rel="manifest" href="manifest.json" />
 
     <title>aplicacao</title>
-
     <script src="flutter.js" defer></script>
   </head>
 
   <body>
-    <script>
-      window.addEventListener("load", function () {
-        if (window.flutterLoader) {
-          window.flutterLoader.loadEntrypoint({
-            onEntrypointLoaded: function (engineInitializer) {
-              engineInitializer.initializeEngine().then(function (appRunner) {
-                appRunner.runApp();
-              });
-            },
-          });
-        } else {
-          console.error("flutterLoader is undefined");
-        }
-      });
-    </script>
   </body>
 </html>
