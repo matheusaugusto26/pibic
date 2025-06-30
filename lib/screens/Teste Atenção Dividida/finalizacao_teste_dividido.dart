@@ -2,7 +2,6 @@ import 'package:aplicacao/services/resultados_cache.dart';
 import 'package:aplicacao/services/sessao_cache.dart';
 import 'package:aplicacao/services/firebase_service.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 Map<String, dynamic> calcularStats(List<Map<String, dynamic>> resultados) {
   final reacoes = resultados.where((r) => r['tipo'] == 'reacao').toList();
@@ -90,27 +89,37 @@ class _FinalizacaoTesteDivididoState extends State<FinalizacaoTesteDividido> {
     final service = FirebaseService();
 
     try {
-      await Firebase.initializeApp();
+      // 🚫 Não re-inicialize o Firebase aqui!
 
       final sessionData = {
         ...?SessaoCache.sessionData,
         'startedAt': DateTime.now().toIso8601String(),
       };
 
+      print('📝 Salvando sessão com dados: $sessionData');
       final sessionId = await service.saveSession(sessionData);
 
+      print('💾 Salvando resultados alternado');
       await service.saveResults(sessionId, statsAlternado['resultados'], 'Alternado');
+
+      print('💾 Salvando resultados concentrado');
       await service.saveResults(sessionId, statsConcentrado['resultados'], 'Concentrado');
+
+      print('💾 Salvando resultados dividido');
       await service.saveResults(sessionId, statsDividido['resultados'], 'Dividido');
 
       if (!mounted) return;
 
+      print('✅ Navegando para /proximospassos');
       Navigator.pushReplacementNamed(
         context,
         '/proximospassos',
         arguments: dadosParaPdf,
       );
-    } catch (e) {
+    } catch (e, s) {
+      print('🔥 Erro ao salvar dados: $e');
+      print('🔥 Stacktrace: $s');
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
