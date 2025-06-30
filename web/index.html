@@ -16,8 +16,8 @@
   <body>
     <script>
       window.addEventListener("load", function () {
-        if (window.flutterLoader) {
-          window.flutterLoader.loadEntrypoint({
+        if (window._flutter && window._flutter.loader) {
+          window._flutter.loader.loadEntrypoint({
             onEntrypointLoaded: function (engineInitializer) {
               engineInitializer.initializeEngine().then(function (appRunner) {
                 appRunner.runApp();
@@ -25,7 +25,7 @@
             },
           });
         } else {
-          console.error("flutterLoader is undefined");
+          console.error("_flutter.loader is undefined");
         }
       });
     </script>
