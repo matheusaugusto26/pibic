@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:aplicacao/services/relatorio_pdf.dart';
 import 'package:aplicacao/services/recuperar_dados_testes.dart';
+import 'package:aplicacao/services/excluir_sessao.dart';
 
 class ResultadosAnteriores extends StatefulWidget {
   const ResultadosAnteriores({super.key});
@@ -69,27 +70,72 @@ class _ResultadosAnterioresState extends State<ResultadosAnteriores> {
                   itemBuilder: (context, index) {
                     final resultado = filtrados[index];
                     final nome = resultado['nomePaciente'] ?? 'Sem nome';
-                    final data = resultado['dataAplicacao']?.substring(0, 10) ??
-                        'Desconhecida';
+                    final dataRaw = resultado['dataAplicacao'];
+                    String data;
+                    try {
+                      final dateTime = DateTime.parse(dataRaw);
+                      data =
+                          '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year} às ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+                    } catch (_) {
+                      data = 'Desconhecida';
+                    }
 
                     return ListTile(
                       title: Text(nome),
                       subtitle: Text('Data: $data'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.picture_as_pdf),
-                        onPressed: () {
-                          () async {
-                            final sessionId = resultado['id'];
-                            final dadosTeste =
-                                await recuperarDadosCalculados(sessionId);
-                            final dadosCompletos = {
-                              ...resultado,
-                              ...dadosTeste
-                            };
-                            if (!context.mounted) return;
-                            await exportarRelatorioPdf(dadosCompletos, context);
-                          };
-                        },
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.picture_as_pdf),
+                            onPressed: () async {
+                              final sessionId = resultado['id'];
+                              final dadosTeste =
+                                  await recuperarDadosCalculados(sessionId);
+                              final dadosCompletos = {
+                                ...resultado,
+                                ...dadosTeste
+                              };
+                              if (!context.mounted) return;
+                              await exportarRelatorioPdf(
+                                  dadosCompletos, context);
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () async {
+                              final sessionId = resultado['id'];
+
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Confirmar exclusão'),
+                                  content: const Text(
+                                      'Tem certeza que deseja excluir esta sessão?'),
+                                  actions: [
+                                    TextButton(
+                                      child: const Text('Cancelar'),
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                    ),
+                                    ElevatedButton(
+                                      child: const Text('Excluir'),
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true) {
+                                if (!context.mounted) return;
+                                await excluirSessaoComResultados(
+                                    sessionId, context);
+                                if (context.mounted) setState(() {});
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     );
                   },
