@@ -21,7 +21,7 @@ class _AplicacaoTesteDivididoState extends State<AplicacaoTesteDividido> {
   int numeroDireita = 1;
   bool _isInit = false;
 
-  final int tempoLimiteSegundos = 10;
+  final int tempoLimiteSegundos = 240;
 
   final List<Map<String, int>> _combinacoes = [];
   int _indiceAtual = 0;
