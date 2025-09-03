@@ -1,0 +1,40 @@
+name: Release (Windows)
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'   # ex.: v1.0.0
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Enable Windows
+        run: flutter config --enable-windows-desktop
+
+      - name: Pub get
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Zip Release
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path build\artifacts | Out-Null
+          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath build/artifacts/Windows_Release.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/artifacts/Windows_Release.zip

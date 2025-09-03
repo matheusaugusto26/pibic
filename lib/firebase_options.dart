@@ -70,7 +70,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '141928664195',
     projectId: 'pibic-matheusaugusto-2024',
     authDomain: 'pibic-matheusaugusto-2024.firebaseapp.com',
-    storageBucket: 'pibic-matheusaugusto-2024.appspot.com',
+    storageBucket: 'pibic-matheusaugusto-2024.firebasestorage.app',
     measurementId: 'G-0VREXB3DM5',
   );
+
 }
